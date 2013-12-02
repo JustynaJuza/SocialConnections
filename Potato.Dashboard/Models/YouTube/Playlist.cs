@@ -11,6 +11,7 @@ namespace Potato.Dashboard.Models.YouTube
     public enum PlaylistOrder
     {
         position,
+        published,
         viewCount,
         commentCount,
         duration,
@@ -66,7 +67,7 @@ namespace Potato.Dashboard.Models.YouTube
 
         public override bool CanConvert(Type objectType)
         {
-            return typeof(Video).IsAssignableFrom(objectType);
+            return typeof(Playlist).IsAssignableFrom(objectType);
         }
     }
 }

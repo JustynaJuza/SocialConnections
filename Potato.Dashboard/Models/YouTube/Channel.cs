@@ -58,7 +58,7 @@ namespace Potato.Dashboard.Models.YouTube
 
         public override bool CanConvert(Type objectType)
         {
-            return typeof(Video).IsAssignableFrom(objectType);
+            return typeof(Channel).IsAssignableFrom(objectType);
         }
     }
 }
