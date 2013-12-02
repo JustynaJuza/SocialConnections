@@ -8,8 +8,15 @@ using System.Web;
 
 namespace Potato.Dashboard.Models.YouTube
 {
+    public enum VideoOrder
+    {
+        relevance,
+        published,
+        viewCount
+    }
+
     [JsonConverter(typeof(JsonYouTubeVideoConverter))]
-    public class Video : Entry, IEntry
+    public class Video : Entry
     {
         public VideoComments Comments { get; set; }
         public VideoStatistics Statistics { get; set; }

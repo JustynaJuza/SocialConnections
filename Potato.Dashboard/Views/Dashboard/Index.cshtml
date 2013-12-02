@@ -3,6 +3,10 @@
     ViewBag.Title = "YouTube Video Dashboard";
 }
 
+<h2>YouTube Dashboard</h2>
+@Html.Partial("_MessagePartial")
+
+@if (Model != null) {
 @*---------------------------------------------------------- CHANNEL INFO ----------------------------------------------------------*@
 <div class="row">
     <div class="col-md-10">
@@ -33,12 +37,13 @@
                 Updated
                 @if (item.Updated.HasValue)
                 {
-                    @Html.DisplayFor(modelItem => item.Updated)
+                    @Html.DisplayFor(modelItem => item.Updated) @:, contains @Html.DisplayFor(modelItem => item.EntriesCount) videos.
                 }
                 else
                 {
+                    // Valid for most recent playlist.
                     @: just recently
-                }, contains @Html.DisplayFor(modelItem => item.EntriesCount) videos.
+                }
             </p>
 
             @* Playlist Video List *@
@@ -50,3 +55,4 @@
         </div>
     }
 </div>
+}

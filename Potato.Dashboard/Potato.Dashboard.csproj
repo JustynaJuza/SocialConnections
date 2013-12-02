@@ -184,7 +184,7 @@
     <Compile Include="Models\YouTube\Playlist.cs" />
     <Compile Include="Models\YouTube\VideoComments.cs" />
     <Compile Include="Models\YouTube\VideoMediaContent.cs" />
-    <Compile Include="Models\YouTube\IEntry.cs" />
+    <Compile Include="Models\YouTube\Entry.cs" />
     <Compile Include="Models\YouTube\VideoMedia.cs" />
     <Compile Include="Models\YouTube\VideoRating.cs" />
     <Compile Include="Models\YouTube\VideoStatistics.cs" />
@@ -240,6 +240,7 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Dashboard\_VideoListPartial.cshtml" />
+    <Content Include="Views\Shared\_MessagePartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

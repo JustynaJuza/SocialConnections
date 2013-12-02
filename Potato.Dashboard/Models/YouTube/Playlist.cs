@@ -8,14 +8,25 @@ using System.Web;
 
 namespace Potato.Dashboard.Models.YouTube
 {
+    public enum PlaylistOrder
+    {
+        position,
+        viewCount,
+        commentCount,
+        duration,
+        title
+    }
+
     [JsonConverter(typeof(JsonYouTubePlaylistConverter))]
-    public class Playlist : Entry, IEntry
+    public class Playlist : Entry
     {
         public IList<Video> Entries { get; set; }
         public int EntriesCount { get; set; }
         public Uri EntriesFeed { get; set; }
 
-        public Playlist() { }
+        public Playlist() {
+            Entries = new List<Video>();
+        }
         public Playlist(IList<Video> videoList)
         {
             Entries = videoList;

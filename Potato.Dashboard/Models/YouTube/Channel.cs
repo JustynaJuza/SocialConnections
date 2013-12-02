@@ -9,7 +9,7 @@ using System.Web;
 namespace Potato.Dashboard.Models.YouTube
 {
     [JsonConverter(typeof(JsonYouTubeChannelConverter))]
-    public class Channel : Entry, IEntry
+    public class Channel : Entry
     {
         public Uri Thumbnail { get; set; }
         public ChannelStatistics Statistics { get; set; }

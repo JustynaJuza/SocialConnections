@@ -10,5 +10,10 @@ namespace Potato.Dashboard.Models
     {
         public Channel Channel { get; set; }
         public IList<Playlist> Playlists { get; set; }
+
+        public YouTubeVideoChannelViewModel()
+        {
+            Playlists = new List<Playlist>();
+        }
     }
 }
