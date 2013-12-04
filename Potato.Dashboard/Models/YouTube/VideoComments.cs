@@ -5,7 +5,7 @@ using System.Web;
 
 namespace Potato.Dashboard.Models.YouTube
 {
-    public class VideoComments
+    public class VideoComments : AbstractExtensions
     {
         public int CommentsCount { get; set; }
         public Uri CommentsFeed { get; set; }

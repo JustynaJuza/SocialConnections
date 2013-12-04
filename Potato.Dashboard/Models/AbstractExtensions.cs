@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 
 namespace Potato.Dashboard.Models
 {
+    // Overridong ToString allows to see all properties of an object also in Debug mode, not only when explicitly using the extension method.
     public abstract class AbstractExtensions
     {
         public override string ToString()
@@ -19,17 +21,23 @@ namespace Potato.Dashboard.Models
         }
     }
 
-    public static class ObjectExtension
+    public static class Extensions
     {
-        public static string ToFullString(this object myObj)
+        public static string ToFullString(this object obj)
         {
-            string toString = myObj.GetType().FullName + ": ";
-            var classMembers = myObj.GetType().GetProperties();
+            string toString = obj.GetType().FullName + ": ";
+            var classMembers = obj.GetType().GetProperties();
 
             foreach (System.Reflection.PropertyInfo member in classMembers)
-                toString += "\n" + member.Name + " : " + member.GetValue(myObj) + "; ";
+                toString += "\n" + member.Name + " : " + member.GetValue(obj) + "; ";
 
             return toString;
+        }
+
+        public static DateTime ParseTwitterTime(this string date)
+        {
+            const string format = "ddd MMM dd HH:mm:ss zzzz yyyy";
+            return DateTime.ParseExact(date, format, CultureInfo.InvariantCulture);
         }
     }
 }

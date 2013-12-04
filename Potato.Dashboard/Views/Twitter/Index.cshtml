@@ -1,57 +1,43 @@
-﻿@model Potato.Dashboard.Models.YouTubeVideoChannelViewModel
+﻿@model Potato.Dashboard.Models.TwitterTimelineViewModel
 @{
     ViewBag.Title = "Twitter Tweets Dashboard";
 }
 
 @Html.Partial("_MessagePartial")
 
-@if (Model != null) {
-@*---------------------------------------------------------- CHANNEL INFO ----------------------------------------------------------*@
-<div class="row">
-    <div class="col-md-10">
-        <h2>
-            <a href="@Model.Channel.Link"><img src="@Model.Channel.Thumbnail" /></a>
-            <a href="@Model.Channel.Link">@Model.Channel.Author.Name</a>'s YouTube Channel
-        </h2>
-        <p> Last update: @Html.DisplayFor(m => m.Channel.Updated) </p>
-        <p> Subscribers: @Html.DisplayFor(m => m.Channel.Statistics.SubscriberCount) </p>
-        <p> Total video views: @Html.DisplayFor(m => m.Channel.Statistics.TotalUploadViews) </p>
-    </div>
-    <div class="col-md-1">
-        @Html.ActionLink("Refresh channels", "Index", "Dashboard", null, new { @class = "btn btn-default" })
-    </div>
-</div>
-
-
-@*----------------------------------------------------------- PLAYLISTS -----------------------------------------------------------*@
-<div class="row">
-    @foreach (var item in Model.Playlists)
-    {
-        <div class="col-md-6">
-
-            @* Playlist Info *@
-
-            <h4><a href="@item.Link">@Html.DisplayFor(modelItem => item.Title) </a></h4>
-            <p>
-                Updated
-                @if (item.Updated.HasValue)
-                {
-                    @Html.DisplayFor(modelItem => item.Updated) @:, contains @Html.DisplayFor(modelItem => item.EntriesCount) videos.
-                }
-                else
-                {
-                    // Valid for most recent playlist.
-                    @: just recently
-                }
-            </p>
-
-            @* Playlist Video List *@
-
-            @if (item.Entries != null)
-            {
-                @Html.Partial("_VideoListPartial", item.Entries)
-            }
+@if (Model != null)
+{
+    @*----------------------------------------------------------- USER INFO -----------------------------------------------------------*@
+    <div class="row">
+        <div class="col-md-10">
+            <h2>
+                <a href="@Model.User.Link"><img src="@Model.User.Profile.Image" width="80" height="80" /></a>
+                <a href="@Model.User.Link">@Model.User.ScreenName</a>
+                &ndash; @Model.User.Name's Twitter Timeline
+            </h2>
+            @*<p> Last update: @Html.DisplayFor(m => m.Channel.Updated) </p>*@
+            <p> Joined Twitter @Html.Display((((DateTime.Now.Year - Model.User.Joined.Value.Year) * 12) + DateTime.Now.Month - Model.User.Joined.Value.Month).ToString() + "months ago") </p>
+            <p> Followers: @Html.DisplayFor(m => m.User.Statistics.FollowersCount) </p>
+            <p> List: @Html.DisplayFor(m => m.User.Statistics.ListedCount) </p>
+            <p> Total Tweets: @Html.DisplayFor(m => m.User.Statistics.TweetStatusesCount) </p>
         </div>
-    }
-</div>
+        <div class="col-md-1">
+            @Html.ActionLink("Refresh Timeline", "Index", "Twitter", null, new { @class = "btn btn-default" })
+        </div>
+    </div>
+
+    @*----------------------------------------------------------- TIMELINE -----------------------------------------------------------*@
+    <hr />
+    <div class="row">
+            <div class="col-md-6">
+
+                @* Tweet List *@
+
+                @if (Model.Tweets != null)
+                {
+                    @Html.Partial("_TweetListPartial", Model.Tweets)
+                }
+            </div>
+    </div>
+
 }

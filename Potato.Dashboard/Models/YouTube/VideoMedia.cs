@@ -5,7 +5,7 @@ using System.Web;
 
 namespace Potato.Dashboard.Models.YouTube
 {
-    public class VideoMedia
+    public class VideoMedia : AbstractExtensions
     {
         public string Title { get; set; }
         public string Category { get; set; }

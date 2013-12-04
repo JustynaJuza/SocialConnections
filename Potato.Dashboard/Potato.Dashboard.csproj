@@ -52,6 +52,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -176,8 +177,15 @@
     </Compile>
     <Compile Include="Models\AbstractExtensions.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\CacheProvider.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\TwitterTimelineViewModel.cs" />
     <Compile Include="Models\Twitter\Tweet.cs" />
+    <Compile Include="Models\Twitter\TweetStatistics.cs" />
+    <Compile Include="Models\Twitter\TweetEntities.cs" />
+    <Compile Include="Models\Twitter\User.cs" />
+    <Compile Include="Models\Twitter\UserProfile.cs" />
+    <Compile Include="Models\Twitter\UserStatistics.cs" />
     <Compile Include="Models\YouTubeVideoChannelViewModel.cs" />
     <Compile Include="Models\YouTube\Author.cs" />
     <Compile Include="Models\YouTube\Channel.cs" />

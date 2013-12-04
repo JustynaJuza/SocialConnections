@@ -45,7 +45,7 @@ namespace Potato.Dashboard.Models.YouTube
         // Deserialize - JSON to C# object mapping.
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            JObject jsonObject = JObject.Load(reader);
+            var jsonObject = JObject.Load(reader);
 
             // Populate C# object with according JObject data.
             return new Playlist()
