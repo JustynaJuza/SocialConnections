@@ -16,9 +16,10 @@
                 &ndash; @Model.User.Name's Twitter Timeline
             </h2>
             @*<p> Last update: @Html.DisplayFor(m => m.Channel.Updated) </p>*@
-            <p> Joined Twitter @Html.Display((((DateTime.Now.Year - Model.User.Joined.Value.Year) * 12) + DateTime.Now.Month - Model.User.Joined.Value.Month).ToString() + "months ago") </p>
+            @{var joined = (((DateTime.Now.Year - Model.User.Joined.Value.Year) * 12) + DateTime.Now.Month - Model.User.Joined.Value.Month).ToString() + " months ago";}
+            <p> Joined Twitter @joined </p>
             <p> Followers: @Html.DisplayFor(m => m.User.Statistics.FollowersCount) </p>
-            <p> List: @Html.DisplayFor(m => m.User.Statistics.ListedCount) </p>
+            <p> On Lists: @Html.DisplayFor(m => m.User.Statistics.ListedCount) </p>
             <p> Total Tweets: @Html.DisplayFor(m => m.User.Statistics.TweetStatusesCount) </p>
         </div>
         <div class="col-md-1">
