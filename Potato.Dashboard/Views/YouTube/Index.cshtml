@@ -10,15 +10,7 @@
     @*---------------------------------------------------------- CHANNEL INFO ----------------------------------------------------------*@
     <div class="row">
         <div class="col-md-10">
-            <h2>
-                <a href="@Model.Channel.Link"><img src="@Model.Channel.Thumbnail" /></a>
-                <a href="@Model.Channel.Link">@Model.Channel.Author.Name</a>'s YouTube Channel
-            </h2>
-            @{var joined = (((DateTime.Now.Year - Model.Channel.Published.Value.Year) * 12) + DateTime.Now.Month - Model.Channel.Published.Value.Month).ToString() + " months ago";}
-            <p> Joined YouTube @joined </p>
-            <p> Last update: @Html.DisplayFor(m => m.Channel.Updated) </p>
-            <p> Subscribers: @Html.DisplayFor(m => m.Channel.Statistics.SubscriberCount) </p>
-            <p> Total video views: @Html.DisplayFor(m => m.Channel.Statistics.TotalUploadViews) </p>
+            @Html.Partial("_YouTubeChannelPartial", Model.Channel)
         </div>
         <div class="col-md-1">
             @Html.ActionLink("Refresh channels", "Index", "YouTube", null, new { @class = "btn btn-default" })
@@ -53,7 +45,7 @@
 
                 @if (item.Entries != null)
                 {
-                    @Html.Partial("_VideoListPartial", item.Entries)
+                    @Html.Partial("_YouTubeVideoListPartial", item.Entries)
                 }
             </div>
         }

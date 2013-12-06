@@ -10,7 +10,7 @@ namespace Potato.Dashboard.Models.Twitter
     [JsonConverter(typeof(JsonTwitterTweetConverter))]
     public class Tweet : AbstractExtensions
     {
-        public static readonly bool noUserDetailsInTweet = true;
+        public static bool noUserDetailsInTweet = true;
 
         public string Id { get; set; }
         public DateTime Published { get; set; }
@@ -62,7 +62,7 @@ namespace Potato.Dashboard.Models.Twitter
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var jsonObject = JObject.Load(reader);
-            System.Diagnostics.Debug.WriteLine(jsonObject);
+            //System.Diagnostics.Debug.WriteLine(jsonObject);
 
             // Populate C# object with according JObject data.
             var deserializedTweet = new Tweet()

@@ -16,7 +16,7 @@ namespace Potato.Dashboard.Models
             if (item == null)
             {
                 item = getItemCallback();
-                Cache.Add(key, item, DateTime.MaxValue);
+                Cache.Add(key, item, new DateTimeOffset(DateTime.Now.Add(new TimeSpan(60,0,0,0))));
             }
             return item;
         }

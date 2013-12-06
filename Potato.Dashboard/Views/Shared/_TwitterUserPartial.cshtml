@@ -1,0 +1,13 @@
+﻿@model Potato.Dashboard.Models.Twitter.User
+
+<h2>
+    <a href="@Model.Link"><img src="@Model.Profile.Image" width="80" height="80" /></a>
+    <a href="@Model.Link">@Model.ScreenName</a>
+    &ndash; @Model.Name's Twitter Timeline
+</h2>
+@*<p> Last update: @Html.DisplayFor(m => m.Channel.Updated) </p>*@
+@{var joined = (((DateTime.Now.Year - Model.Joined.Value.Year) * 12) + DateTime.Now.Month - Model.Joined.Value.Month).ToString() + " months ago";}
+<p> Joined Twitter @joined </p>
+<p> Followers: @Html.DisplayFor(m => m.Statistics.FollowersCount) </p>
+<p> On Lists: @Html.DisplayFor(m => m.Statistics.ListedCount) </p>
+<p> Total Tweets: @Html.DisplayFor(m => m.Statistics.TweetStatusesCount) </p>

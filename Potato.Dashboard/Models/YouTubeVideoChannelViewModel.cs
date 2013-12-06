@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Potato.Dashboard.Models
 {
-    public class YouTubeVideoChannelViewModel
+    public class YouTubeVideoChannelViewModel : AbstractExtensions
     {
         public Channel Channel { get; set; }
         public IList<Playlist> Playlists { get; set; }

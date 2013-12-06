@@ -10,17 +10,7 @@
     @*----------------------------------------------------------- USER INFO -----------------------------------------------------------*@
     <div class="row">
         <div class="col-md-10">
-            <h2>
-                <a href="@Model.User.Link"><img src="@Model.User.Profile.Image" width="80" height="80" /></a>
-                <a href="@Model.User.Link">@Model.User.ScreenName</a>
-                &ndash; @Model.User.Name's Twitter Timeline
-            </h2>
-            @*<p> Last update: @Html.DisplayFor(m => m.Channel.Updated) </p>*@
-            @{var joined = (((DateTime.Now.Year - Model.User.Joined.Value.Year) * 12) + DateTime.Now.Month - Model.User.Joined.Value.Month).ToString() + " months ago";}
-            <p> Joined Twitter @joined </p>
-            <p> Followers: @Html.DisplayFor(m => m.User.Statistics.FollowersCount) </p>
-            <p> On Lists: @Html.DisplayFor(m => m.User.Statistics.ListedCount) </p>
-            <p> Total Tweets: @Html.DisplayFor(m => m.User.Statistics.TweetStatusesCount) </p>
+            @Html.Partial("_TwitterUserPartial", Model.User)
         </div>
         <div class="col-md-1">
             @Html.ActionLink("Refresh Timeline", "Index", "Twitter", null, new { @class = "btn btn-default" })
@@ -36,7 +26,7 @@
 
                 @if (Model.Tweets != null)
                 {
-                    @Html.Partial("_TweetListPartial", Model.Tweets)
+                    @Html.Partial("_TwitterTweetListPartial", Model.Tweets)
                 }
             </div>
     </div>

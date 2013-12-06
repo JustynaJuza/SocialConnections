@@ -21,7 +21,7 @@ namespace Potato.Dashboard.Controllers
             // Playlist name for fetching videos from specific playlist.
             string playlistTitle = ""; //"Surprise Surprise";
             // How many results should be feteched for user/playlist videos.
-            int videoResultsCount = 5;
+            int videoResultsCount = 3;
             // How many results should be feteched for playlists.
             int playlistResultsCount = 3;
             // Index of the first playlist to be fetched (starting with 1).

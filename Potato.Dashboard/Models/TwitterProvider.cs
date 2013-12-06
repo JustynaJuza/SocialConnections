@@ -1,59 +1,88 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Potato.Dashboard.Models;
 using Potato.Dashboard.Models.Twitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
-using System.Web.Mvc;
 
-namespace Potato.Dashboard.Controllers
+namespace Potato.Dashboard.Models
 {
-    public class TwitterController : Controller
+    /// <summary>
+    /// Provides Twitter requests and response handling for users, tweets and timelines.
+    /// </summary>
+    public class TwitterProvider : AbstractExtensions
     {
+        // The cache object saving the permanent application-only authorization token to prevent sending too many requests.
         CacheProvider cache = new CacheProvider();
+        #region TWITTER REQUEST SETTINGS
+        /// <summary>
+        /// Twitter user whose timeline we request.</summary>
+        public string TwitterUser { get; set; }
+        /// <summary>
+        /// How many tweets should be feteched from timeline.
+        /// <para>Important: When filtering out replies and retweets you get less than the count, because filtering is applied after fetching the specific count.</para></summary>
+        public int TimelineResultsCount { get; set; }
+        /// <summary>
+        /// Include user replies in timeline.
+        /// <para>Important: If set to false will filter out all replies from requested Tweets and possibly returning less results than expected.</para></summary>
+        public bool IncludeReplies { get; set; }
+        /// <summary>
+        /// Include retweeted Tweets in timeline.
+        /// <para>Important: If set to false will filter out all replies from requested Tweets and possibly returning less results than expected.</para></summary>
+        public bool IncludeRetweets { get; set; }
+        /// <summary>
+        /// Oldest Id constraint applied to request. All fetched tweets will be newer than the Tweet with this Id.</summary>
+        public string OldestResultId { get; set; }
+        /// <summary>
+        /// Include only serId in Tweet.</summary>
+        public bool NoUserDetailsInTweet { get; set; }
+        /// <summary>
+        /// Include a word description of when the tweet was published.</summary>
+        public bool CalculateHowLongSincePublished { get; set; }
+        #endregion TWITTER REQUEST SETTINGS
 
-        public JsonResult ClearCache()
+        #region CONSTRUCTORS
+        private TwitterProvider()
         {
-            cache.Remove("TwitterAuthorizationToken");
-            return Json(new { Success = true }, JsonRequestBehavior.AllowGet);
+            // Default settings.
+            TimelineResultsCount = 50;
+            IncludeReplies = false;
+            IncludeRetweets = false;
+            OldestResultId = "";
+            NoUserDetailsInTweet = true;
+            CalculateHowLongSincePublished = false;
         }
 
-        public ActionResult Index()
+        /// <summary>
+        /// Provides requests for the Twitter user's tweets with default settings.
+        /// </summary>
+        /// <param name="twitterUser">The Twitter user's username.</param>
+        /// <param name="timelineResultsCount">The number of tweets returned in request.</param>
+        public TwitterProvider(string twitterUser, int timelineResultsCount = 50)
+            : this()
         {
-            #region TWITTER REQUEST SETTINGS
-            // Twitter user whose timeline we request.
-            string twitterUser = "ITV";
-            bool noUserDetailsInTweet = Tweet.noUserDetailsInTweet;
-            ViewBag.NoUserDetailsInTweet = noUserDetailsInTweet;
-            // How many Tweets should be feteched from timeline.
-            // Important: When filtering out replies and retweets you get less than the count, because filtering is after fetching the specific count.
-            int timelineResultsCount = 100;
-            // Include all user timeline activity?
-            bool includeReplies = false;
-            bool includeRetweets = false;
-            // Index of the first playlist to be fetched (starting with 1).
-            string oldestResultId = "";
-            // Include a word description of when the video was published.
-            bool calculateHowLongSincePublished = false;
-            ViewBag.HowLongSincePublished = calculateHowLongSincePublished;
-            #endregion TWITTER REQUEST SETTINGS
+            TwitterUser = twitterUser;
+            TimelineResultsCount = timelineResultsCount;
+        }
+        #endregion CONSTRUCTORS
 
+        public TwitterTimelineViewModel GetTwitterUserData(out string errorText)
+        {
             var twitterTimeline = new TwitterTimelineViewModel();
-            twitterTimeline.User = GetTwitterUser(twitterUser);
+            twitterTimeline.User = GetTwitterUser(TwitterUser);
 
             // Show error only if user not found on YouTube.
             if (twitterTimeline.User == null)
             {
-                TempData["Error"] = "No user with the name " + twitterUser + " exists on Twitter.";
-                return View();
+                errorText = "No user with the name " + TwitterUser + " exists on Twitter.";
+                return null;
             }
 
-            //twitterTimeline.Tweets.Add(GetTwitterTweet("407543221435510785"));
-            twitterTimeline.Tweets = GetTwitterUserTimeline("ITV", false, timelineResultsCount, includeRetweets, includeReplies, oldestResultId, noUserDetailsInTweet, calculateHowLongSincePublished);
-            return View(twitterTimeline);
+            errorText = null;
+            twitterTimeline.Tweets = GetTwitterUserTimeline("ITV", false, TimelineResultsCount, IncludeRetweets, IncludeReplies, OldestResultId, NoUserDetailsInTweet, CalculateHowLongSincePublished);
+            return twitterTimeline;
         }
 
         #region TWITTER REQUEST HANDLING
@@ -197,6 +226,32 @@ namespace Potato.Dashboard.Controllers
 
             // Number of request results is correct.
             return resultsCount;
+        }
+
+        private Tweet EncodeEntitiesInTweets(Tweet tweet)
+        {
+            foreach (var entity in tweet.Entities.Hashtags){
+                tweet.Text.Replace("#" + entity.Text, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
+            }
+            // I don't know what symbols redirect to, just leave it for now.
+            //foreach (var entity in tweet.Entities.Symbols)
+            //{
+            //    tweet.Text.Replace(, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
+            //}
+            foreach (var entity in tweet.Entities.Urls)
+            {
+                tweet.Text.Replace(entity.DisplayUrl, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
+            }
+            foreach (var entity in tweet.Entities.Hashtags)
+            {
+                tweet.Text.Replace("#" + entity.Text, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
+            }
+            foreach (var entity in tweet.Entities.Hashtags)
+            {
+                tweet.Text.Replace("#" + entity.Text, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
+            }
+
+            return tweet;
         }
         #endregion HELPERS
     }

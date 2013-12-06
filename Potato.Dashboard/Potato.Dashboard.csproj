@@ -179,6 +179,8 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CacheProvider.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\SocialDashboardViewModel.cs" />
+    <Compile Include="Models\TwitterProvider.cs" />
     <Compile Include="Models\TwitterTimelineViewModel.cs" />
     <Compile Include="Models\Twitter\Tweet.cs" />
     <Compile Include="Models\Twitter\TweetStatistics.cs" />
@@ -186,6 +188,7 @@
     <Compile Include="Models\Twitter\User.cs" />
     <Compile Include="Models\Twitter\UserProfile.cs" />
     <Compile Include="Models\Twitter\UserStatistics.cs" />
+    <Compile Include="Models\YouTubeProvider.cs" />
     <Compile Include="Models\YouTubeVideoChannelViewModel.cs" />
     <Compile Include="Models\YouTube\Author.cs" />
     <Compile Include="Models\YouTube\Channel.cs" />
@@ -249,10 +252,12 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\YouTube\Index.cshtml" />
-    <Content Include="Views\YouTube\_VideoListPartial.cshtml" />
+    <Content Include="Views\Shared\_YouTubeVideoListPartial.cshtml" />
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
-    <Content Include="Views\Twitter\_TweetListPartial.cshtml" />
+    <Content Include="Views\Shared\_TwitterTweetListPartial.cshtml" />
     <Content Include="Views\Twitter\Index.cshtml" />
+    <Content Include="Views\Shared\_YouTubeChannelPartial.cshtml" />
+    <Content Include="Views\Shared\_TwitterUserPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Potato.Dashboard.Models
 {
-    public class TwitterTimelineViewModel
+    public class TwitterTimelineViewModel : AbstractExtensions
     {
         public User User { get; set; }
         public IList<Tweet> Tweets { get; set; }

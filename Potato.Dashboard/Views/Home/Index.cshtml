@@ -1,16 +1,70 @@
-﻿@{
+﻿@model Potato.Dashboard.Models.SocialDashboardViewModel
+@{
     ViewBag.Title = "Social Dashboard";
 }
 
 <div class="jumbotron">
-    <h1>Social Dashboard</h1>
-</div>
-
-<div class="row">
-    <div class="col-md-2">
+    <h1>
+        Social Dashboard
         @Html.ActionLink("Test YouTube", "Index", "YouTube", null, new { @class = "btn btn-default" })
-    </div>
-    <div class="col-md-2">
         @Html.ActionLink("Test Twitter", "Index", "Twitter", null, new { @class = "btn btn-default" })
-    </div>
+    </h1>
 </div>
+@Html.Partial("_MessagePartial")
+
+@if (Model != null)
+{
+    @*---------------------------------------------------------- CHANNEL INFO ----------------------------------------------------------*@
+    <div class="row">
+        <div class="col-md-6">
+            @Html.Partial("_YouTubeChannelPartial", Model.YouTubeAccount.Channel)
+        </div>
+        <div class="col-md-6">
+            @Html.Partial("_TwitterUserPartial", Model.TwitterAccount.User)
+        </div>
+    </div>
+
+
+    @*----------------------------------------------------------- PLAYLISTS -----------------------------------------------------------*@
+    <hr />
+    <div class="row">
+        @foreach (var item in Model.YouTubeAccount.Playlists)
+        {
+            <div class="col-md-6">
+
+                @* Playlist Info *@
+
+                <h4><a href="@item.Link">@Html.DisplayFor(modelItem => item.Title) </a></h4>
+                <p>
+                    Updated
+                    @if (item.Updated.HasValue)
+                    {
+                        @Html.DisplayFor(modelItem => item.Updated) @:, contains @Html.DisplayFor(modelItem => item.EntriesCount) videos.
+                }
+                    else
+                    {
+                        // Valid for most recent playlist.
+                        @: just recently
+                }
+                </p>
+
+                @* Playlist Video List *@
+
+                @if (item.Entries != null)
+                {
+                    @Html.Partial("_YouTubeVideoListPartial", item.Entries)
+                }
+            </div>
+        }
+
+        <div class="col-md-6">
+
+            @* Tweet List *@
+
+            @if (Model.TwitterAccount.Tweets != null)
+            {
+                @Html.Partial("_TwitterTweetListPartial", Model.TwitterAccount.Tweets)
+            }
+        </div>
+    </div>
+}
