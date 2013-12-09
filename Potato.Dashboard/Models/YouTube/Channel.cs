@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Potato.Dashboard.Models.YouTube
+namespace Potato.SocialDashboard.Models.YouTube
 {
     [JsonConverter(typeof(JsonYouTubeChannelConverter))]
     public class Channel : Entry

@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Potato.Dashboard.Models.Twitter;
+using Potato.SocialDashboard.Models.Twitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
 
-namespace Potato.Dashboard.Models
+namespace Potato.SocialDashboard.Models
 {
     /// <summary>
     /// Provides Twitter requests and response handling for users, tweets and timelines.
@@ -81,12 +81,12 @@ namespace Potato.Dashboard.Models
             }
 
             errorText = null;
-            twitterTimeline.Tweets = GetTwitterUserTimeline("ITV", false, TimelineResultsCount, IncludeRetweets, IncludeReplies, OldestResultId, NoUserDetailsInTweet, CalculateHowLongSincePublished);
+            twitterTimeline.Tweets = GetTwitterUserTimeline(TwitterUser, false, TimelineResultsCount, IncludeRetweets, IncludeReplies, OldestResultId, NoUserDetailsInTweet, CalculateHowLongSincePublished);
             return twitterTimeline;
         }
 
         #region TWITTER REQUEST HANDLING
-        public Tweet GetTwitterTweet(string id)
+        public Tweet GetTwitterTweet(string id, bool calculateHowLongSincePublished = false)
         {
             var requestUri = "statuses/show.json?id=" + id;
 
@@ -94,6 +94,11 @@ namespace Potato.Dashboard.Models
             if (jsonObject != null)
             {
                 var requestedTweet = JsonConvert.DeserializeObject<Tweet>(jsonObject.ToString());
+                if (calculateHowLongSincePublished)
+                {
+                    requestedTweet.CalculateHowLongSincePublished();
+                }
+                requestedTweet.LinkEntitiesInTweet();
                 return requestedTweet;
             }
 
@@ -120,7 +125,6 @@ namespace Potato.Dashboard.Models
             int resultsCount = 10, bool includeRetweets = true, bool includeReplies = false,
              string oldestResultId = "", bool trimUserDetails = false, bool calculateHowLongSincePublished = false)
         {
-            // Correct calls exceeding Twitter handled request results.
             resultsCount = CorrectRequestResultsCount(resultsCount);
 
             var requestUri = "statuses/user_timeline.json?" + (isId ? "user_id=" : "screen_name=") + userScreenNameOrId
@@ -139,7 +143,8 @@ namespace Potato.Dashboard.Models
                     foreach (var entry in jsonObject)
                     {
                         var requestedTweet = JsonConvert.DeserializeObject<Tweet>(entry.ToString());
-                        requestedTweet.calculateHowLongSincePublished();
+                        requestedTweet.CalculateHowLongSincePublished();
+                        requestedTweet.LinkEntitiesInTweet();
                         requestedTweets.Add(requestedTweet);
                     }
                 }
@@ -147,7 +152,9 @@ namespace Potato.Dashboard.Models
                 {
                     foreach (var entry in jsonObject)
                     {
-                        requestedTweets.Add(JsonConvert.DeserializeObject<Tweet>(entry.ToString()));
+                        var requestedTweet = JsonConvert.DeserializeObject<Tweet>(entry.ToString());
+                        requestedTweet.LinkEntitiesInTweet();
+                        requestedTweets.Add(requestedTweet);
                     }
                 }
 
@@ -160,6 +167,9 @@ namespace Potato.Dashboard.Models
         #endregion TWITTER REQUEST HANDLING
 
         #region HELPERS
+        /// <summary>
+        /// Requests and caches the Twitter API application-only authorization token.
+        /// </summary>
         private string GetTwitterAuthorizationToken()
         {
             System.Diagnostics.Debug.WriteLine("Requesting Twitter authorization token");
@@ -190,10 +200,14 @@ namespace Potato.Dashboard.Models
             }
         }
 
+        /// <summary>
+        /// Handles YouTube requests with the specified requestUri, returning a JsonObject or JsonArray.
+        /// </summary>
+        /// <param name="requestUri">The request Uri with query parameters.</param>
         private JToken GetJsonRequestResults(string requestUri)
         {
             // Check for cached authorization token or retrieve and save.
-            var authorizationToken = cache.GetOrSet("TwitterAuthorizationToken", GetTwitterAuthorizationToken);
+            var authorizationToken = cache.GetOrSet("TwitterAuthorizationToken", GetTwitterAuthorizationToken, new TimeSpan(60, 0, 0, 0), true);
 
             var requestHandler = new WebClient();
             requestHandler.BaseAddress = "https://api.twitter.com/1.1/";
@@ -216,6 +230,10 @@ namespace Potato.Dashboard.Models
             }
         }
 
+        /// <summary>
+        /// Correct calls exceeding Twitter handled request results. Returns maximum value (200) if exceeded.
+        /// </summary>
+        /// <param name="resultsCount">Number of currently expected results.</param>
         private int CorrectRequestResultsCount(int resultsCount)
         {
             if (resultsCount > 200)
@@ -226,32 +244,6 @@ namespace Potato.Dashboard.Models
 
             // Number of request results is correct.
             return resultsCount;
-        }
-
-        private Tweet EncodeEntitiesInTweets(Tweet tweet)
-        {
-            foreach (var entity in tweet.Entities.Hashtags){
-                tweet.Text.Replace("#" + entity.Text, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
-            }
-            // I don't know what symbols redirect to, just leave it for now.
-            //foreach (var entity in tweet.Entities.Symbols)
-            //{
-            //    tweet.Text.Replace(, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
-            //}
-            foreach (var entity in tweet.Entities.Urls)
-            {
-                tweet.Text.Replace(entity.DisplayUrl, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
-            }
-            foreach (var entity in tweet.Entities.Hashtags)
-            {
-                tweet.Text.Replace("#" + entity.Text, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
-            }
-            foreach (var entity in tweet.Entities.Hashtags)
-            {
-                tweet.Text.Replace("#" + entity.Text, "<a href=https://twitter.com/search?q=%23imacelebrity&src=hash>" + entity.Text + "</a>");
-            }
-
-            return tweet;
         }
         #endregion HELPERS
     }

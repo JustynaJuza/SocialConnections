@@ -1,9 +1,10 @@
-﻿@model Potato.Dashboard.Models.YouTube.Channel
+﻿@model SocialDashboard.Models.YouTube.Channel
 
 <h2>
     <a href="@Model.Link"><img src="@Model.Thumbnail" /></a>
     <a href="@Model.Link">@Model.Author.Name</a>'s YouTube Channel
 </h2>
+
 @{var joined = (((DateTime.Now.Year - Model.Published.Value.Year) * 12) + DateTime.Now.Month - Model.Published.Value.Month).ToString() + " months ago";}
 <p> Joined YouTube @joined </p>
 <p> Last update: @Html.DisplayFor(m => m.Updated) </p>

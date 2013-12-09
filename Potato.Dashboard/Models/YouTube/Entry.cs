@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Potato.Dashboard.Models.YouTube
+namespace Potato.SocialDashboard.Models.YouTube
 {
-    public class Entry : AbstractExtensions, IEntry
+    public class Entry : AbstractExtensions
     {
         public string Id { get; set; }
         public DateTime? Published { get; set; }
@@ -15,15 +15,5 @@ namespace Potato.Dashboard.Models.YouTube
         public string Title { get; set; }
         public Uri Link { get; set; }
         public Author Author { get; set; }
-    }
-    
-    public interface IEntry
-    {
-        string Id { get; set; }
-        DateTime? Published { get; set; }
-        DateTime? Updated { get; set; }
-        string Title { get; set; }
-        Uri Link { get; set; }
-        Author Author { get; set; }
     }
 }

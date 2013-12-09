@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Potato.Dashboard.Models.YouTube
+namespace Potato.SocialDashboard.Models.YouTube
 {
     public class VideoMediaContent : AbstractExtensions
     {

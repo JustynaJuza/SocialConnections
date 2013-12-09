@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Potato.Dashboard.Models.Twitter
+namespace Potato.SocialDashboard.Models.Twitter
 {
     public class UserProfile : AbstractExtensions
     {

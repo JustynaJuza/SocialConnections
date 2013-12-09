@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Potato.Dashboard.Models;
-using Potato.Dashboard.Models.Twitter;
+using SocialDashboard.Models;
+using SocialDashboard.Models.Twitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,7 +110,7 @@ namespace Potato.Dashboard.Controllers
                     foreach (var entry in jsonObject)
                     {
                         var requestedTweet = JsonConvert.DeserializeObject<Tweet>(entry.ToString());
-                        requestedTweet.calculateHowLongSincePublished();
+                        requestedTweet.CalculateHowLongSincePublished();
                         requestedTweets.Add(requestedTweet);
                     }
                 }
@@ -164,7 +164,7 @@ namespace Potato.Dashboard.Controllers
         private JToken GetJsonRequestResults(string requestUri)
         {
             // Check for cached authorization token or retrieve and save.
-            var authorizationToken = cache.GetOrSet("TwitterAuthorizationToken", GetTwitterAuthorizationToken);
+            var authorizationToken = cache.GetOrSet("TwitterAuthorizationToken", GetTwitterAuthorizationToken, new TimeSpan(60, 0, 0, 0), true);
 
             var requestHandler = new WebClient();
             requestHandler.BaseAddress = "https://api.twitter.com/1.1/";

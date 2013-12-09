@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Potato.Dashboard.Models.YouTube;
+using Potato.SocialDashboard.Models.YouTube;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 
-namespace Potato.Dashboard.Models
+namespace Potato.SocialDashboard.Models
 {
     /// <summary>
     /// Provides YouTube requests and response handling for channels, videos and playlists.
@@ -153,17 +153,12 @@ namespace Potato.Dashboard.Models
             jsonObject = jsonObject != null ? jsonObject.SelectToken("entry") : null;
             if (jsonObject != null)
             {
+                var requestedVideo = JsonConvert.DeserializeObject<Video>(jsonObject.ToString());
                 if (calculateHowLongSincePublished)
                 {
-                    // Include a string for readable displaying how long ago the entry was published.
-                    var requestedVideo = JsonConvert.DeserializeObject<Video>(jsonObject.ToString());
-                    requestedVideo.calculateHowLongSincePublished();
-                    return requestedVideo;
+                    requestedVideo.CalculateHowLongSincePublished();
                 }
-                else
-                {
-                    return JsonConvert.DeserializeObject<Video>(jsonObject.ToString());
-                }
+                return requestedVideo;
             }
 
             // No entries found for this request.
@@ -189,7 +184,6 @@ namespace Potato.Dashboard.Models
             bool calculateHowLongSincePublished = false, int resultsCount = 50, int startResultsIndex = 1,
             bool withVideos = true, int videoResultsCount = 10, PlaylistOrder orderBy = PlaylistOrder.position)
         {
-            // Correct calls exceeding YT handled request results.
             resultsCount = CorrectRequestResultsCount(resultsCount);
 
             var requestUri = "users/" + userName + "/playlists?alt=json"
@@ -252,7 +246,6 @@ namespace Potato.Dashboard.Models
             int resultsCount = 10, int startResultsIndex = 1, string orderBy = "published",
             bool allowRestrictedLocation = false, bool explicitlyEmbeddableOnly = false)
         {
-            // Correct calls exceeding YT handled request results.
             resultsCount = CorrectRequestResultsCount(resultsCount);
 
             // Generate query string.
@@ -271,11 +264,10 @@ namespace Potato.Dashboard.Models
                 var requestedVideos = new List<Video>();
                 if (calculateHowLongSincePublished)
                 {
-                    // Include a string for readable displaying how long ago the entry was published.
                     foreach (var entry in jsonObject)
                     {
                         var requestedVideo = JsonConvert.DeserializeObject<Video>(entry.ToString());
-                        requestedVideo.calculateHowLongSincePublished();
+                        requestedVideo.CalculateHowLongSincePublished();
                         requestedVideos.Add(requestedVideo);
                     }
                 }
@@ -296,6 +288,10 @@ namespace Potato.Dashboard.Models
         #endregion YOUTUBE REQUEST HANDLING
 
         #region HELPERS
+        /// <summary>
+        /// Handles YouTube requests with the specified requestUri, returning a JsonObject.
+        /// </summary>
+        /// <param name="requestUri">The request Uri with query parameters.</param>
         private JToken GetJsonRequestResults(string requestUri)
         {
             var requestHandler = new WebClient();
@@ -315,6 +311,10 @@ namespace Potato.Dashboard.Models
             }
         }
 
+        /// <summary>
+        /// Correct calls exceeding YouTube handled request results. Returns maximum value (50) if exceeded.
+        /// </summary>
+        /// <param name="resultsCount">Number of currently expected results.</param>
         private int CorrectRequestResultsCount(int resultsCount)
         {
             if (resultsCount > 50)
@@ -327,6 +327,9 @@ namespace Potato.Dashboard.Models
             return resultsCount;
         }
 
+        /// <summary>
+        /// Returns a Playlist object with or without videos, depending on YouTube request settings.
+        /// </summary>
         private Playlist DeserializeJsonPlaylist(string jsonObjectString, bool withVideos, bool calculateHowLongSincePublished, int videoResultsCount, PlaylistOrder orderBy)
         {
             var requestedPlaylist = JsonConvert.DeserializeObject<Playlist>(jsonObjectString);

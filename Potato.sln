@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Potato.Dashboard", "Potato.Dashboard\Potato.Dashboard.csproj", "{37110DF9-CE1C-49D1-9C0F-0246A35DE38D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialDashboard", "SocialDashboard\SocialDashboard.csproj", "{7496FEAA-865D-4092-887C-4ED2C0990E0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{37110DF9-CE1C-49D1-9C0F-0246A35DE38D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37110DF9-CE1C-49D1-9C0F-0246A35DE38D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37110DF9-CE1C-49D1-9C0F-0246A35DE38D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7496FEAA-865D-4092-887C-4ED2C0990E0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7496FEAA-865D-4092-887C-4ED2C0990E0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7496FEAA-865D-4092-887C-4ED2C0990E0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7496FEAA-865D-4092-887C-4ED2C0990E0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

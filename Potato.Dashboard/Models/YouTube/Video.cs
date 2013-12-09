@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Potato.Dashboard.Models.YouTube
+namespace Potato.SocialDashboard.Models.YouTube
 {
     public enum VideoOrder
     {
@@ -16,7 +16,7 @@ namespace Potato.Dashboard.Models.YouTube
     }
 
     [JsonConverter(typeof(JsonYouTubeVideoConverter))]
-    public class Video : Entry
+    public class Video : Entry, IDashboardEntry
     {
         public VideoComments Comments { get; set; }
         public VideoStatistics Statistics { get; set; }
@@ -24,7 +24,10 @@ namespace Potato.Dashboard.Models.YouTube
         public VideoMedia Media { get; set; }
         public string HowLongSincePublished { get; set; }
 
-        public void calculateHowLongSincePublished()
+        /// <summary>
+        /// Include a time description for readable displaying how long ago the entry was published.
+        /// </summary>
+        public void CalculateHowLongSincePublished()
         {
             int timeDifference;
             if (DateTime.Now.Year - Published.Value.Year > 0 && (DateTime.Now - Published.Value).TotalDays > 365)

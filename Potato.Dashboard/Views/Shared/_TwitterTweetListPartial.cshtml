@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Potato.Dashboard.Models.Twitter.Tweet>
+﻿@model IEnumerable<SocialDashboard.Models.Twitter.Tweet>
 <table>
     <thead>
         <tr>
@@ -25,12 +25,24 @@
                     {
                         <h4> <a href="@item.User.Link"><strong>@Html.DisplayFor(modelItem => item.User.Name)</strong> @Html.DisplayFor(modelItem => item.User.ScreenName)</a></h4>
                     }
-                    <p>@WebUtility.HtmlDecode(item.Text)</p>
+
+                    @* Decoding string form Twitter (special characters encoded in their HTML entity representation)
+                        and parsing links (updated in code during request fetching). *@
+                    <p>@Html.Raw(WebUtility.HtmlDecode(item.Text))</p>
+
                     <a href="@item.Link">
                         <p>@Html.DisplayFor(modelItem => item.Published)</p>
                     </a>
                     <p> Retweets: @Html.DisplayFor(modelItem => item.Statistics.RetweetsCount) | Favourites: @Html.DisplayFor(modelItem => item.Statistics.FavouritesCount)</p>
-                <br />
+                    
+                    @if (item.Entities.Media != null)
+{
+    foreach (var entity in item.Entities.Media)
+    {
+        <img width="438" src="@entity.Source:medium" />
+    }
+}
+                    <hr />
                 </td>
             </tr>
         }

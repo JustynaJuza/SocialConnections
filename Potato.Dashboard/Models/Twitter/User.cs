@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Potato.Dashboard.Models.Twitter
+namespace Potato.SocialDashboard.Models.Twitter
 {
     [JsonConverter(typeof(JsonTwitterUserConverter))]
     public class User : AbstractExtensions

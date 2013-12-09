@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Potato.Dashboard.Models.Twitter
+namespace Potato.SocialDashboard.Models.Twitter
 {
     [JsonConverter(typeof(JsonTwitterTweetConverter))]
-    public class Tweet : AbstractExtensions
+    public class Tweet : AbstractExtensions, IDashboardEntry
     {
         public static bool noUserDetailsInTweet = true;
 
@@ -21,7 +21,10 @@ namespace Potato.Dashboard.Models.Twitter
         public User User { get; set; }
         public string HowLongSincePublished { get; set; }
 
-        public void calculateHowLongSincePublished()
+        /// <summary>
+        /// Include a time description for readable displaying how long ago the entry was published.
+        /// </summary>
+        public void CalculateHowLongSincePublished()
         {
             int timeDifference;
             if (DateTime.Now.Year - Published.Year > 0 && (DateTime.Now - Published).TotalDays > 365)
@@ -47,6 +50,33 @@ namespace Potato.Dashboard.Models.Twitter
             else
             {
                 HowLongSincePublished = "< 1 min ago";
+            }
+        }
+
+        /// <summary>
+        /// Replaces all text entities included in Tweet (Hashtags, Symbols, Links, UserMentions, Media) with actual hyperlinks.
+        /// </summary>
+        public void LinkEntitiesInTweet()
+        {
+            foreach (var entity in Entities.Hashtags)
+            {
+                Text = Text.Replace("#" + entity.Text, "<a target='_blank' href=https://twitter.com/search?q=%23" + entity.Text + "&src=hash>#" + entity.Text + "</a>");
+            }
+            foreach (var entity in Entities.Symbols)
+            {
+                Text = Text.Replace("$" + entity.Text, "<a target='_blank' href=https://twitter.com/search?q=%24>" + entity.Text + "</a>");
+            }
+            foreach (var entity in Entities.Urls)
+            {
+                Text = Text.Replace(entity.ExtractedUrl.OriginalString, "<a target='_blank' href=" + entity.TargetUrl + ">" + entity.DisplayUrl + "</a>");
+            }
+            foreach (var entity in Entities.UserMentions)
+            {
+                Text = Text.Replace("@" + entity.ScreenName, "<a target='_blank' href=https://twitter.com/" + entity.ScreenName + ">@" + entity.ScreenName + "</a>");
+            }
+            foreach (var entity in Entities.Media)
+            {
+                Text = Text.Replace(entity.ExtractedUrl.OriginalString, "<a target='_blank' href=" + entity.ExtractedUrl + ">" + entity.DisplayUrl + "</a>");
             }
         }
     }
