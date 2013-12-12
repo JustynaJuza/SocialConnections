@@ -27,26 +27,26 @@ namespace SocialDashboard.Models.YouTube
         /// <summary>
         /// Include a time description for readable displaying how long ago the entry was published.
         /// </summary>
-        public void CalculateHowLongSincePublished()
+        public void IncludeHowLongSincePublished()
         {
             int timeDifference;
-            if (DateTime.Now.Year - Published.Value.Year > 0 && (DateTime.Now - Published.Value).TotalDays > 365)
+            if (DateTime.Now.Year - Published.Year > 0 && (DateTime.Now - Published).TotalDays > 365)
             {
                 HowLongSincePublished = "> a year ago";
             }
-            else if ((timeDifference = DateTime.Now.Month - Published.Value.Month) > 0)
+            else if ((timeDifference = DateTime.Now.Month - Published.Month) > 0)
             {
                 HowLongSincePublished =  timeDifference == 1 ? "last month" : timeDifference.ToString() + " months ago";
             }
-            else if ((timeDifference = DateTime.Now.Day - Published.Value.Day) > 0)
+            else if ((timeDifference = DateTime.Now.Day - Published.Day) > 0)
             {
                 HowLongSincePublished = timeDifference.ToString() + (timeDifference == 1 ? " day" : " days") + " ago";
             }
-            else if ((timeDifference = DateTime.Now.Hour - Published.Value.Hour) > 0)
+            else if ((timeDifference = DateTime.Now.Hour - Published.Hour) > 0)
             {
                 HowLongSincePublished = timeDifference.ToString() + (timeDifference == 1 ? " hour" : " hours") + " ago";
             }
-            else if ((timeDifference = DateTime.Now.Minute - Published.Value.Minute) > 0)
+            else if ((timeDifference = DateTime.Now.Minute - Published.Minute) > 0)
             {
                 HowLongSincePublished = timeDifference.ToString() + (timeDifference == 1 ? " min" : " mins") + " ago";
             }

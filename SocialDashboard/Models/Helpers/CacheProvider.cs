@@ -27,21 +27,23 @@ namespace SocialDashboard.Models
             if (item == null)
             {
                 item = getItemCallback();
-                if (highPriority)
+                if (item != null)
                 {
-                    Cache.Add(key, item, new CacheItemPolicy()
+                    if (highPriority)
                     {
-                        AbsoluteExpiration = DateTime.Now.Add(expirationTime),
-                        Priority = CacheItemPriority.NotRemovable
-                    });
-                    
-                }
-                else
-                {
-                    Cache.Add(key, item, new CacheItemPolicy()
+                        Cache.Add(key, item, new CacheItemPolicy()
+                        {
+                            AbsoluteExpiration = DateTime.Now.Add(expirationTime),
+                            Priority = CacheItemPriority.NotRemovable
+                        });
+                    }
+                    else
                     {
-                        AbsoluteExpiration = DateTime.Now.Add(expirationTime)
-                    });
+                        Cache.Add(key, item, new CacheItemPolicy()
+                        {
+                            AbsoluteExpiration = DateTime.Now.Add(expirationTime)
+                        });
+                    }
                 }
             }
             return item;

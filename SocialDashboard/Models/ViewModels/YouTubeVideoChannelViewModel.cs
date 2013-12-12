@@ -1,10 +1,10 @@
-﻿using Potato.SocialDashboard.Models.YouTube;
+﻿using SocialDashboard.Models.YouTube;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Potato.SocialDashboard.Models
+namespace SocialDashboard.Models
 {
     public class YouTubeVideoChannelViewModel : AbstractExtensions
     {
@@ -14,6 +14,11 @@ namespace Potato.SocialDashboard.Models
         public YouTubeVideoChannelViewModel()
         {
             Playlists = new List<Playlist>();
+        }
+
+        public YouTubeVideoChannelViewModel(IList<Playlist> playlists)
+        {
+            Playlists = playlists;
         }
     }
 }

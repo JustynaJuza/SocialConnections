@@ -10,7 +10,7 @@ namespace SocialDashboard.Models.Twitter
     [JsonConverter(typeof(JsonTwitterTweetConverter))]
     public class Tweet : AbstractExtensions, IDashboardEntry
     {
-        public static bool noUserDetailsInTweet = true;
+        public static bool includeUserDetailsInTweet = false;
 
         public string Id { get; set; }
         public DateTime Published { get; set; }
@@ -24,7 +24,7 @@ namespace SocialDashboard.Models.Twitter
         /// <summary>
         /// Include a time description for readable displaying how long ago the entry was published.
         /// </summary>
-        public void CalculateHowLongSincePublished()
+        public void IncludeHowLongSincePublished()
         {
             int timeDifference;
             if (DateTime.Now.Year - Published.Year > 0 && (DateTime.Now - Published).TotalDays > 365)
@@ -113,37 +113,37 @@ namespace SocialDashboard.Models.Twitter
                 }
             };
 
-            if (!Tweet.noUserDetailsInTweet)
+            if (Tweet.includeUserDetailsInTweet)
             {
                 // Add a User object associated with the tweet.
                 var jsonSubObject = jsonObject.SelectToken("user");
                 deserializedTweet.User = new User()
                 {
-                        Id = (string) jsonSubObject.SelectToken("id_str"),
-                        Name = (string) jsonSubObject.SelectToken("name"),
-                        ScreenName = "@" + (string) jsonSubObject.SelectToken("screen_name"),
-                        Description = (string) jsonSubObject.SelectToken("description"),
-                        Joined = ((string) jsonSubObject.SelectToken("created_at")).ParseTwitterTime(),
-                        Url = new Uri((string) jsonSubObject.SelectToken("entities").SelectToken("url").SelectToken("urls").First.SelectToken("expanded_url")),
-                        Statistics = new UserStatistics()
-                        {
-                            FollowersCount = (int) jsonSubObject.SelectToken("followers_count"),
-                            FriendsCount = (int) jsonSubObject.SelectToken("friends_count"),
-                            ListedCount = (int) jsonSubObject.SelectToken("listed_count"),
-                            TweetStatusesCount = (int) jsonSubObject.SelectToken("statuses_count")
-                        },
-                        Profile = new UserProfile()
-                        {
-                            Image = new Uri(((string) jsonSubObject.SelectToken("profile_image_url")).Replace("_normal", "")),
-                            ImageInTweet = new Uri((string) jsonSubObject.SelectToken("profile_image_url")),
-                            BackgroundImage = new Uri((string) jsonSubObject.SelectToken("profile_background_image_url")),
-                            BackgroundColor = (string) jsonSubObject.SelectToken("profile_background_color"),
-                            LinkColor = (string) jsonSubObject.SelectToken("profile_link_color"),
-                            TextColor = (string) jsonSubObject.SelectToken("profile_text_color"),
-                            SidebarFillColor = (string) jsonSubObject.SelectToken("profile_sidebar_fill_color"),
-                            SidebarBorderColor = (string) jsonSubObject.SelectToken("profile_sidebar_border_color")
-                        }
-                    };
+                    Id = (string) jsonSubObject.SelectToken("id_str"),
+                    Name = (string) jsonSubObject.SelectToken("name"),
+                    ScreenName = "@" + (string) jsonSubObject.SelectToken("screen_name"),
+                    Description = (string) jsonSubObject.SelectToken("description"),
+                    Joined = ((string) jsonSubObject.SelectToken("created_at")).ParseTwitterTime(),
+                    Url = new Uri((string) jsonSubObject.SelectToken("entities").SelectToken("url").SelectToken("urls").First.SelectToken("url")),
+                    Statistics = new UserStatistics()
+                    {
+                        FollowersCount = (int) jsonSubObject.SelectToken("followers_count"),
+                        FriendsCount = (int) jsonSubObject.SelectToken("friends_count"),
+                        ListedCount = (int) jsonSubObject.SelectToken("listed_count"),
+                        TweetStatusesCount = (int) jsonSubObject.SelectToken("statuses_count")
+                    },
+                    Profile = new UserProfile()
+                    {
+                        Image = new Uri(((string) jsonSubObject.SelectToken("profile_image_url")).Replace("_normal", "")),
+                        ImageInTweet = new Uri((string) jsonSubObject.SelectToken("profile_image_url")),
+                        BackgroundImage = new Uri((string) jsonSubObject.SelectToken("profile_background_image_url")),
+                        BackgroundColor = (string) jsonSubObject.SelectToken("profile_background_color"),
+                        LinkColor = (string) jsonSubObject.SelectToken("profile_link_color"),
+                        TextColor = (string) jsonSubObject.SelectToken("profile_text_color"),
+                        SidebarFillColor = (string) jsonSubObject.SelectToken("profile_sidebar_fill_color"),
+                        SidebarBorderColor = (string) jsonSubObject.SelectToken("profile_sidebar_border_color")
+                    }
+                };
             }
 
             // Include all types of Tweet Entities.
@@ -211,7 +211,6 @@ namespace SocialDashboard.Models.Twitter
                     });
                 }
             }
-
             deserializedTweet.User.Link = new Uri("https://www.twitter.com/" + deserializedTweet.User.ScreenName);
             deserializedTweet.Link = new Uri(deserializedTweet.User.Link + "/status/" + deserializedTweet.Id);
 

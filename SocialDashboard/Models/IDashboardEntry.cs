@@ -11,7 +11,9 @@ namespace SocialDashboard.Models
     /// <summary>
     /// Common interface for Dashboard entries including Tweets and Videos, allows for sorting by publish date.
     /// </summary>
-    public interface IDashboardEntry { }
+    public interface IDashboardEntry {
+        DateTime Published { get; set; }
+    }
 
     /// <summary>
     /// The Comparer used for sorting IDashboardEntries like Tweets and Videos by publish date, returning newest entries first.
@@ -20,8 +22,8 @@ namespace SocialDashboard.Models
     {
         public int Compare(IDashboardEntry x, IDashboardEntry y)
         {
-            var dateX = (DateTime) x.GetType().GetProperty("Published").GetValue(x);
-            var dateY = (DateTime) y.GetType().GetProperty("Published").GetValue(y);
+            var dateX = x.Published;
+            var dateY = y.Published;
 
             if (dateX > dateY)
             {

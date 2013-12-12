@@ -1,10 +1,10 @@
-﻿using Potato.SocialDashboard.Models.Twitter;
+﻿using SocialDashboard.Models.Twitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace Potato.SocialDashboard.Models
+namespace SocialDashboard.Models
 {
     public class TwitterTimelineViewModel : AbstractExtensions
     {
@@ -14,6 +14,11 @@ namespace Potato.SocialDashboard.Models
         public TwitterTimelineViewModel()
         {
             Tweets = new List<Tweet>();
+        }
+
+        public TwitterTimelineViewModel(IList<Tweet> tweets)
+        {
+            Tweets = tweets;
         }
     }
 }

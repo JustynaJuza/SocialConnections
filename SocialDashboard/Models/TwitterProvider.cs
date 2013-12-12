@@ -12,7 +12,7 @@ namespace SocialDashboard.Models
     /// <summary>
     /// Provides Twitter requests and response handling for users, tweets and timelines.
     /// </summary>
-    public class TwitterProvider : AbstractExtensions
+    public class TwitterProvider : AbstractExtensions, IDashboardProvider
     {
         // The cache object saving the permanent application-only authorization token to prevent sending too many requests.
         CacheProvider cache = new CacheProvider();
@@ -25,22 +25,22 @@ namespace SocialDashboard.Models
         /// <para>Important: When filtering out replies and retweets you get less than the count, because filtering is applied after fetching the specific count.</para></summary>
         public int TimelineResultsCount { get; set; }
         /// <summary>
-        /// Include user replies in timeline.
-        /// <para>Important: If set to false will filter out all replies from requested Tweets and possibly returning less results than expected.</para></summary>
-        public bool IncludeReplies { get; set; }
-        /// <summary>
-        /// Include retweeted Tweets in timeline.
-        /// <para>Important: If set to false will filter out all replies from requested Tweets and possibly returning less results than expected.</para></summary>
-        public bool IncludeRetweets { get; set; }
-        /// <summary>
-        /// Oldest Id constraint applied to request. All fetched tweets will be newer than the Tweet with this Id.</summary>
+        /// Oldest Id constraint applied to request. All fetched tweets will be newer than the tweet with this id.</summary>
         public string OldestResultId { get; set; }
         /// <summary>
-        /// Include only serId in Tweet.</summary>
-        public bool NoUserDetailsInTweet { get; set; }
+        /// Include user replies in timeline.
+        /// <para>Important: If set to false will filter out all replies from requested tweets and possibly returning less results than expected.</para></summary>
+        public bool IncludeReplies { get; set; }
+        /// <summary>
+        /// Include retweeted tweets in timeline.
+        /// <para>Important: If set to false will filter out all replies from requested tweets and possibly returning less results than expected.</para></summary>
+        public bool IncludeRetweets { get; set; }
+        /// <summary>
+        /// Trim user details in tweet, leaving only id.</summary>
+        public bool IncludeUserDetailsInTweet { get; set; }
         /// <summary>
         /// Include a word description of when the tweet was published.</summary>
-        public bool CalculateHowLongSincePublished { get; set; }
+        public bool IncludeHowLongSincePublished { get; set; }
         #endregion TWITTER REQUEST SETTINGS
 
         #region CONSTRUCTORS
@@ -48,11 +48,11 @@ namespace SocialDashboard.Models
         {
             // Default settings.
             TimelineResultsCount = 50;
+            OldestResultId = "";
             IncludeReplies = false;
             IncludeRetweets = false;
-            OldestResultId = "";
-            NoUserDetailsInTweet = true;
-            CalculateHowLongSincePublished = false;
+            IncludeUserDetailsInTweet = false;
+            IncludeHowLongSincePublished = false;
         }
 
         /// <summary>
@@ -60,18 +60,37 @@ namespace SocialDashboard.Models
         /// </summary>
         /// <param name="twitterUser">The Twitter user's username.</param>
         /// <param name="timelineResultsCount">The number of tweets returned in request.</param>
-        public TwitterProvider(string twitterUser, int timelineResultsCount = 50)
+        public TwitterProvider(string twitterUser, int timelineResultsCount = 50, bool includeUserDetailsInTweet = false, bool includeHowLongSincePublished = false)
             : this()
         {
             TwitterUser = twitterUser;
             TimelineResultsCount = timelineResultsCount;
+            IncludeHowLongSincePublished = includeHowLongSincePublished;
+            IncludeUserDetailsInTweet = includeUserDetailsInTweet;
+        }
+
+        /// <summary>
+        /// Provides requests for the Twitter user's tweets configured by the Web.config entry.
+        /// </summary>
+        /// <param name="config">The configuration handler.</param>
+        public TwitterProvider(TwitterProviderConfig config)
+        {
+            TwitterUser = config.TwitterUser;
+            TimelineResultsCount = config.TimelineResultsCount;
+            OldestResultId = config.OldestResultId;
+            IncludeReplies = config.IncludeReplies;
+            IncludeRetweets = config.IncludeRetweets;
+            IncludeUserDetailsInTweet = config.IncludeUserDetailsInTweet;
+            IncludeHowLongSincePublished = config.IncludeHowLongSincePublished;
         }
         #endregion CONSTRUCTORS
 
         public TwitterTimelineViewModel GetTwitterUserData(out string errorText)
         {
+            errorText = null;
+
             var twitterTimeline = new TwitterTimelineViewModel();
-            twitterTimeline.User = GetTwitterUser(TwitterUser);
+            twitterTimeline.User = GetTwitterUser(errorText);
 
             // Show error only if user not found on YouTube.
             if (twitterTimeline.User == null)
@@ -79,24 +98,45 @@ namespace SocialDashboard.Models
                 errorText = "No user with the name " + TwitterUser + " exists on Twitter.";
                 return null;
             }
-
-            errorText = null;
-            twitterTimeline.Tweets = GetTwitterUserTimeline(TwitterUser, false, TimelineResultsCount, IncludeRetweets, IncludeReplies, OldestResultId, NoUserDetailsInTweet, CalculateHowLongSincePublished);
+            
+            twitterTimeline.Tweets = GetTwitterUserTimeline();
             return twitterTimeline;
         }
 
+        public User GetTwitterUser(out string errorText)
+        {
+            errorText = null;
+
+            var user = GetTwitterUser(TwitterUser);
+            // Show error only if user not found on YouTube.
+            if (user == null)
+            {
+                errorText = "No user with the name " + TwitterUser + " exists on Twitter.";
+                return null;
+            }
+            return user;
+        }
+
+        public IList<Tweet> GetTwitterUserTimeline()
+        {
+            return GetTwitterUserTimeline(TwitterUser, false,
+                TimelineResultsCount, IncludeRetweets, IncludeReplies,
+                OldestResultId, !IncludeUserDetailsInTweet, IncludeHowLongSincePublished);
+        }
+
         #region TWITTER REQUEST HANDLING
-        public Tweet GetTwitterTweet(string id, bool calculateHowLongSincePublished = false)
+        public Tweet GetTwitterTweet(string id, bool includeHowLongSincePublished = false)
         {
             var requestUri = "statuses/show.json?id=" + id;
+            Tweet.includeUserDetailsInTweet = true;
 
             var jsonObject = GetJsonRequestResults(requestUri);
             if (jsonObject != null)
             {
                 var requestedTweet = JsonConvert.DeserializeObject<Tweet>(jsonObject.ToString());
-                if (calculateHowLongSincePublished)
+                if (includeHowLongSincePublished)
                 {
-                    requestedTweet.CalculateHowLongSincePublished();
+                    requestedTweet.IncludeHowLongSincePublished();
                 }
                 requestedTweet.LinkEntitiesInTweet();
                 return requestedTweet;
@@ -123,7 +163,7 @@ namespace SocialDashboard.Models
 
         public IList<Tweet> GetTwitterUserTimeline(string userScreenNameOrId, bool isId = false,
             int resultsCount = 10, bool includeRetweets = true, bool includeReplies = false,
-             string oldestResultId = "", bool trimUserDetails = false, bool calculateHowLongSincePublished = false)
+             string oldestResultId = "", bool trimUserDetails = true, bool includeHowLongSincePublished = false)
         {
             resultsCount = CorrectRequestResultsCount(resultsCount);
 
@@ -134,16 +174,17 @@ namespace SocialDashboard.Models
                 + (oldestResultId != "" ? "&since_id=" + oldestResultId : "")
                 + (trimUserDetails ? "&trim_user=1" : "");
 
+            Tweet.includeUserDetailsInTweet = !trimUserDetails;
             var jsonObject = GetJsonRequestResults(requestUri);
             if (jsonObject != null)
             {
                 var requestedTweets = new List<Tweet>();
-                if (calculateHowLongSincePublished)
+                if (includeHowLongSincePublished)
                 {
                     foreach (var entry in jsonObject)
                     {
                         var requestedTweet = JsonConvert.DeserializeObject<Tweet>(entry.ToString());
-                        requestedTweet.CalculateHowLongSincePublished();
+                        requestedTweet.IncludeHowLongSincePublished();
                         requestedTweet.LinkEntitiesInTweet();
                         requestedTweets.Add(requestedTweet);
                     }
@@ -162,7 +203,7 @@ namespace SocialDashboard.Models
             }
 
             // No entries found for this request.
-            return null;
+            return new List<Tweet>();
         }
         #endregion TWITTER REQUEST HANDLING
 
@@ -173,9 +214,10 @@ namespace SocialDashboard.Models
         private string GetTwitterAuthorizationToken()
         {
             System.Diagnostics.Debug.WriteLine("Requesting Twitter authorization token");
-            // Twitter registered application details.
-            var consumerKey = "CUb3sO8IPne6a9GPiODrew";
-            var consumerSecret = "exsSve7RelWY5RuTq7r26JKb6TkABDEnpMTmP8Fzyw";
+            // Twitter registered application details from Web.config section.
+            TwitterConfig twitterConfig = TwitterConfig.Read();
+            var consumerKey = twitterConfig.Credentials.ConsumerKey;
+            var consumerSecret = twitterConfig.Credentials.ConsumerSecret;
 
             // Encoding application details for application-only authorization token request.
             var bearerTokenCredentials = System.Text.Encoding.ASCII.GetBytes(consumerKey + ":" + consumerSecret);
@@ -195,7 +237,9 @@ namespace SocialDashboard.Models
             }
             catch (System.Net.WebException ex)
             {
+                // TODO: Maybe raise and handle error for incorrect credentials?
                 System.Diagnostics.Debug.WriteLine("WebRequest Error: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("The application was unable to recieve Twitter authorization token - check credentials in Web.config!");
                 return null;
             }
         }

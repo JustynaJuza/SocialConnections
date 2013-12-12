@@ -76,9 +76,13 @@
     <Compile Include="Models\Helpers\AbstractExtensions.cs" />
     <Compile Include="Models\Helpers\CacheProvider.cs" />
     <Compile Include="Models\IDashboardEntry.cs" />
-    <Compile Include="Models\SocialDashboardViewModel.cs" />
+    <Compile Include="Models\IDashboardProvider.cs" />
+    <Compile Include="Models\ViewModels\SocialDashboardViewModel.cs" />
+    <Compile Include="Models\ViewModels\TimelineConfigViewModel.cs" />
+    <Compile Include="Models\ViewModels\TwitterProviderConfigViewModel.cs" />
+    <Compile Include="Models\TwitterConfig.cs" />
     <Compile Include="Models\TwitterProvider.cs" />
-    <Compile Include="Models\TwitterTimelineViewModel.cs" />
+    <Compile Include="Models\ViewModels\TwitterTimelineViewModel.cs" />
     <Compile Include="Models\Twitter\Tweet.cs" />
     <Compile Include="Models\Twitter\TweetEntities.cs" />
     <Compile Include="Models\Twitter\TweetStatistics.cs" />
@@ -86,7 +90,7 @@
     <Compile Include="Models\Twitter\UserProfile.cs" />
     <Compile Include="Models\Twitter\UserStatistics.cs" />
     <Compile Include="Models\YouTubeProvider.cs" />
-    <Compile Include="Models\YouTubeVideoChannelViewModel.cs" />
+    <Compile Include="Models\ViewModels\YouTubeVideoChannelViewModel.cs" />
     <Compile Include="Models\YouTube\Author.cs" />
     <Compile Include="Models\YouTube\Channel.cs" />
     <Compile Include="Models\YouTube\ChannelStatistics.cs" />

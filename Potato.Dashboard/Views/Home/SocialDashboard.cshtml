@@ -10,32 +10,36 @@
 @if (Model != null)
 {
     @*----------------------------------------------------------- USER INFO -----------------------------------------------------------*@
-    <div class="jumbotron">
-        <div class="row">
-            <div class="col-md-6">
-                @Html.Partial("_YouTubeChannelPartial", Model.YouTubeAccount.Channel)
-            </div>
-            <div class="col-md-6">
-                @Html.Partial("_TwitterUserPartial", Model.TwitterAccount.User)
+    if (ViewBag.SingleUserInfo == true)
+    {
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-md-6">
+                    @Html.Partial("_YouTubeChannelPartial", Model.YouTubeAccount.Channel)
+                </div>
+                <div class="col-md-6">
+                    @Html.Partial("_TwitterUserPartial", Model.TwitterAccount.User)
+                </div>
             </div>
         </div>
-    </div>
-
+    }
     @*------------------------------------------------------------ ENTRIES ------------------------------------------------------------*@
     <hr />
+
     <div class="row">
-        @foreach (var dashboardEntry in Model.RecentActivity)
+        @if (ViewBag.MergedTimeline == true)
         {
-            <div>
+            foreach (var dashboardEntry in Model.RecentActivity)
+            {
                 <table>
                     <thead>
                         <tr>
                             @if (ViewBag.HowLongSincePublished == true)
                             {
-                                <th width="15%"></th>
+                                <th></th>
                             }
-                            <th width="65%"></th>
-                            <th class="20%"></th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -90,8 +94,9 @@
                                     </td>
                                 }
                                 <td>
-                                    @if (ViewBag.NoUserDetailsInTweet == false)
+                                    @if (ViewBag.SingleUser != true)
                                     {
+                                        <a href="@item.User.Link"><img src="@item.User.Profile.ImageInTweet"></a>
                                         <h4> <a href="@item.User.Link"><strong>@Html.DisplayFor(modelItem => item.User.Name)</strong> @Html.DisplayFor(modelItem => item.User.ScreenName)</a></h4>
                                     }
 
@@ -118,6 +123,34 @@
                         }
                     </tbody>
                 </table>
+            }
+        }
+        else
+        {
+            foreach (var item in Model.YouTubeAccount.Playlists)
+            {
+                <div class="col-md-6">
+
+                    @if (item.Title != null)
+                    {
+                        @Html.Partial("_YouTubePlaylistPartial", item)
+                    }
+
+                    @* Playlist Video List *@@if (item.Entries != null)
+                    {
+                        @Html.Partial("_YouTubeVideoListPartial", item.Entries)
+                    }
+                </div>
+            }
+
+            <div class="col-md-6">
+
+                @* Tweet List *@
+
+                @if (Model.TwitterAccount.Tweets != null)
+                {
+                    @Html.Partial("_TwitterTweetListPartial", Model.TwitterAccount.Tweets)
+                }
             </div>
         }
     </div>

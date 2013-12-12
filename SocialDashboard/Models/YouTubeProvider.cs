@@ -13,7 +13,7 @@ namespace SocialDashboard.Models
     /// <summary>
     /// Provides YouTube requests and response handling for channels, videos and playlists.
     /// </summary>
-    public class YouTubeProvider : AbstractExtensions
+    public class YouTubeProvider : AbstractExtensions, IDashboardProvider
     {
         #region YOUTUBE REQUEST SETTINGS
         /// <summary>
@@ -47,7 +47,7 @@ namespace SocialDashboard.Models
         public PlaylistOrder PlaylistVideosOrder { get; set; }
         /// <summary>
         /// Include a word description of when the video was published.</summary>
-        public bool CalculateHowLongSincePublished { get; set; }
+        public bool IncludeHowLongSincePublished { get; set; }
         #endregion YOUTUBE REQUEST SETTINGS
 
         #region CONSTRUCTORS
@@ -61,7 +61,7 @@ namespace SocialDashboard.Models
             IncludePlaylistVideos = true;
             UserVideosOrder = VideoOrder.published;
             PlaylistVideosOrder = PlaylistOrder.position;
-            CalculateHowLongSincePublished = false;
+            IncludeHowLongSincePublished = false;
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace SocialDashboard.Models
             // Get all playlists for user
             if (PlaylistResultsCount > 0)
             {
-                var channelPlaylists = GetChannelPlaylists(YouTubeUser, PlaylistTitle, CalculateHowLongSincePublished, PlaylistResultsCount, PlaylistsStartResultsIndex, true, VideoResultsCount, PlaylistVideosOrder);
+                var channelPlaylists = GetChannelPlaylists(YouTubeUser, PlaylistTitle, IncludeHowLongSincePublished, PlaylistResultsCount, PlaylistsStartResultsIndex, true, VideoResultsCount, PlaylistVideosOrder);
                 if (channelPlaylists == null)
                 {
                     // Add error if search for specific playlist returned no results.
@@ -134,7 +134,7 @@ namespace SocialDashboard.Models
             }
 
             // List user's most recent uploads as first playlist.
-            userChannel.Playlists.Insert(0, new Playlist(GetChannelVideos(YouTubeUser, CalculateHowLongSincePublished, VideoResultsCount, VideosStartResultsIndex, UserVideosOrder))
+            userChannel.Playlists.Insert(0, new Playlist(GetChannelVideos(YouTubeUser, IncludeHowLongSincePublished, VideoResultsCount, VideosStartResultsIndex, UserVideosOrder))
             {
                 Title = "Most Recent Uploads",
                 Link = new Uri("http://www.youtube.com/user/" + YouTubeUser + "/videos")
@@ -144,8 +144,26 @@ namespace SocialDashboard.Models
             return userChannel;
         }
 
+        public Channel GetChannel()
+        {
+            return GetChannel(YouTubeUser);
+        }
+
+        public IList<Playlist> GetChannelPlaylists(bool withVideos, string playlistTitle = "")
+        {
+            return GetChannelPlaylists(YouTubeUser, playlistTitle, IncludeHowLongSincePublished,
+                PlaylistResultsCount, PlaylistsStartResultsIndex,
+                withVideos, VideoResultsCount, PlaylistVideosOrder);
+        }
+
+        public IList<Video> GetChannelVideos()
+        {
+            return GetChannelVideos(YouTubeUser, IncludeHowLongSincePublished,
+                VideoResultsCount, VideosStartResultsIndex, UserVideosOrder);
+        }
+
         #region YOUTUBE REQUEST HANDLING
-        public Video GetVideo(string id, bool calculateHowLongSincePublished = false)
+        public Video GetVideo(string id, bool includeHowLongSincePublished = false)
         {
             var requestUri = "videos/" + id + "?alt=json";
 
@@ -154,9 +172,9 @@ namespace SocialDashboard.Models
             if (jsonObject != null)
             {
                 var requestedVideo = JsonConvert.DeserializeObject<Video>(jsonObject.ToString());
-                if (calculateHowLongSincePublished)
+                if (includeHowLongSincePublished)
                 {
-                    requestedVideo.CalculateHowLongSincePublished();
+                    requestedVideo.IncludeHowLongSincePublished();
                 }
                 return requestedVideo;
             }
@@ -181,7 +199,7 @@ namespace SocialDashboard.Models
         }
 
         public IList<Playlist> GetChannelPlaylists(string userName, string playlistTitle = "",
-            bool calculateHowLongSincePublished = false, int resultsCount = 50, int startResultsIndex = 1,
+            bool includeHowLongSincePublished = false, int resultsCount = 50, int startResultsIndex = 1,
             bool withVideos = true, int videoResultsCount = 10, PlaylistOrder orderBy = PlaylistOrder.position)
         {
             resultsCount = CorrectRequestResultsCount(resultsCount);
@@ -202,16 +220,16 @@ namespace SocialDashboard.Models
                     // If no playlist with that title found, fetch and search further playlist results.
                     if (jsonObject == null)
                     {
-                        return GetChannelPlaylists(userName, playlistTitle, calculateHowLongSincePublished, resultsCount, startResultsIndex + resultsCount, withVideos, videoResultsCount, orderBy);
+                        return GetChannelPlaylists(userName, playlistTitle, includeHowLongSincePublished, resultsCount, startResultsIndex + resultsCount, withVideos, videoResultsCount, orderBy);
                     }
 
-                    requestedPlaylists.Add(DeserializeJsonPlaylist(jsonObject.ToString(), withVideos, calculateHowLongSincePublished, videoResultsCount, orderBy));
+                    requestedPlaylists.Add(DeserializeJsonPlaylist(jsonObject.ToString(), withVideos, includeHowLongSincePublished, videoResultsCount, orderBy));
                 }
                 else
                 {
                     foreach (var entry in jsonObject)
                     {
-                        requestedPlaylists.Add(DeserializeJsonPlaylist(entry.ToString(), withVideos, calculateHowLongSincePublished, videoResultsCount, orderBy));
+                        requestedPlaylists.Add(DeserializeJsonPlaylist(entry.ToString(), withVideos, includeHowLongSincePublished, videoResultsCount, orderBy));
                     }
                 }
 
@@ -219,30 +237,30 @@ namespace SocialDashboard.Models
             }
 
             // No entries found for this request.
-            return null;
+            return new List<Playlist>();
         }
 
         // Video search overload for users.
-        public IList<Video> GetChannelVideos(string userNameOrId, bool calculateHowLongSincePublished = false,
+        public IList<Video> GetChannelVideos(string userNameOrId, bool includeHowLongSincePublished = false,
             int resultsCount = 10, int startResultsIndex = 1, VideoOrder orderBy = VideoOrder.relevance,
             bool allowRestrictedLocation = false, bool explicitlyEmbeddableOnly = false)
         {
-            return GetVideos(userNameOrId, false, calculateHowLongSincePublished, resultsCount, startResultsIndex,
+            return GetVideos(userNameOrId, false, includeHowLongSincePublished, resultsCount, startResultsIndex,
                 Enum.GetName(typeof(VideoOrder), orderBy), allowRestrictedLocation, explicitlyEmbeddableOnly);
 
         }
 
         // Video search overload for playlists.
-        public IList<Video> GetPlaylistVideos(string playlistId, bool calculateHowLongSincePublished = false,
+        public IList<Video> GetPlaylistVideos(string playlistId, bool includeHowLongSincePublished = false,
             int resultsCount = 10, int startResultsIndex = 1, PlaylistOrder orderBy = PlaylistOrder.position,
             bool allowRestrictedLocation = false, bool explicitlyEmbeddableOnly = false)
         {
-            return GetVideos(playlistId, true, calculateHowLongSincePublished, resultsCount, startResultsIndex,
+            return GetVideos(playlistId, true, includeHowLongSincePublished, resultsCount, startResultsIndex,
                 Enum.GetName(typeof(PlaylistOrder), orderBy), allowRestrictedLocation, explicitlyEmbeddableOnly);
         }
 
         // Base video search method.
-        private IList<Video> GetVideos(string userOrPlaylistId, bool isPlaylistId = false, bool calculateHowLongSincePublished = false,
+        private IList<Video> GetVideos(string userOrPlaylistId, bool isPlaylistId = false, bool includeHowLongSincePublished = false,
             int resultsCount = 10, int startResultsIndex = 1, string orderBy = "published",
             bool allowRestrictedLocation = false, bool explicitlyEmbeddableOnly = false)
         {
@@ -262,12 +280,12 @@ namespace SocialDashboard.Models
             if (jsonObject != null)
             {
                 var requestedVideos = new List<Video>();
-                if (calculateHowLongSincePublished)
+                if (includeHowLongSincePublished)
                 {
                     foreach (var entry in jsonObject)
                     {
                         var requestedVideo = JsonConvert.DeserializeObject<Video>(entry.ToString());
-                        requestedVideo.CalculateHowLongSincePublished();
+                        requestedVideo.IncludeHowLongSincePublished();
                         requestedVideos.Add(requestedVideo);
                     }
                 }
@@ -283,7 +301,7 @@ namespace SocialDashboard.Models
             }
 
             // No entries found for this request.
-            return null;
+            return new List<Video>();
         }
         #endregion YOUTUBE REQUEST HANDLING
 
@@ -330,13 +348,13 @@ namespace SocialDashboard.Models
         /// <summary>
         /// Returns a Playlist object with or without videos, depending on YouTube request settings.
         /// </summary>
-        private Playlist DeserializeJsonPlaylist(string jsonObjectString, bool withVideos, bool calculateHowLongSincePublished, int videoResultsCount, PlaylistOrder orderBy)
+        private Playlist DeserializeJsonPlaylist(string jsonObjectString, bool withVideos, bool includeHowLongSincePublished, int videoResultsCount, PlaylistOrder orderBy)
         {
             var requestedPlaylist = JsonConvert.DeserializeObject<Playlist>(jsonObjectString);
             // Include playlist videos.
             if (withVideos)
             {
-                requestedPlaylist.Entries = GetPlaylistVideos(requestedPlaylist.Id, calculateHowLongSincePublished, videoResultsCount, 1, orderBy);
+                requestedPlaylist.Entries = GetPlaylistVideos(requestedPlaylist.Id, includeHowLongSincePublished, videoResultsCount, 1, orderBy);
             }
             return requestedPlaylist;
         }

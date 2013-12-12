@@ -21,7 +21,7 @@
                     </td>
                 }
                 <td>
-                    @if (ViewBag.NoUserDetailsInTweet == false)
+                    @if (ViewBag.UserDetailsInTweet == true)
                     {
                         <h4> <a href="@item.User.Link"><strong>@Html.DisplayFor(modelItem => item.User.Name)</strong> @Html.DisplayFor(modelItem => item.User.ScreenName)</a></h4>
                     }

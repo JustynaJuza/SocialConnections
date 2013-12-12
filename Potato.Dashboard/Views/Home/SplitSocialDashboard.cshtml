@@ -6,8 +6,6 @@
 <div class="jumbotron">
     <h1>
         Social Dashboard
-        @Html.ActionLink("Test YouTube", "Index", "YouTube", null, new { @class = "btn btn-default" })
-        @Html.ActionLink("Test Twitter", "Index", "Twitter", null, new { @class = "btn btn-default" })
     </h1>
 </div>
 @Html.Partial("_MessagePartial")
@@ -15,15 +13,17 @@
 @if (Model != null)
 {
     @*----------------------------------------------------------- USER INFO -----------------------------------------------------------*@
-    <div class="row">
-        <div class="col-md-6">
-            @Html.Partial("_YouTubeChannelPartial", Model.YouTubeAccount.Channel)
+    if (ViewBag.SingleUserInfo == true)
+    {
+        <div class="row">
+            <div class="col-md-6">
+                @Html.Partial("_YouTubeChannelPartial", Model.YouTubeAccount.Channel)
+            </div>
+            <div class="col-md-6">
+                @Html.Partial("_TwitterUserPartial", Model.TwitterAccount.User)
+            </div>
         </div>
-        <div class="col-md-6">
-            @Html.Partial("_TwitterUserPartial", Model.TwitterAccount.User)
-        </div>
-    </div>
-
+    }
 
     @*------------------------------------------------------------ ENTRIES ------------------------------------------------------------*@
     <hr />
