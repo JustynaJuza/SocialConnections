@@ -1,0 +1,40 @@
+﻿@model SocialAlliance.Models.YouTube.Video
+
+<tr>
+    @* Include descriptive publish time *@
+    @if (ViewBag.HowLongSincePublished == true)
+    {
+        <td>
+            @Html.DisplayFor(m => m.HowLongSincePublished)
+        </td>
+    }
+    <td>
+        <p>
+            @* YouTube embedded video player *@
+            <iframe width="320" height="180" src="http://www.youtube.com/embed/@Model.Id" frameborder="0"></iframe>
+
+            <h4>@Html.DisplayFor(m => m.Media.Title)</h4>
+            @if (Model.Media != null)
+            {
+                @* Descriptions retrieved from cached videos (not requested by 'relevance') are limited and may be incomplete *@
+                if (Model.Media.Description != null)
+                {
+                    @Html.DisplayFor(m => m.Media.Description)
+                }
+            }
+        </p>
+        <hr />
+    </td>
+    <td>
+        @* Statistics retrieved from cached videos (not requested by 'relevance') will most certainly be not up-to-date *@
+        <p> Published: @Html.DisplayFor(m => m.Published) </p>
+        <p> Updated:  @Html.DisplayFor(m => m.Updated) </p>
+        <p>
+            Likes: @Html.DisplayFor(m => m.Rating.Likes)
+            Dislikes: @Html.DisplayFor(m => m.Rating.Dislikes)
+        </p>
+        <p> Views: @Html.DisplayFor(m => m.Statistics.ViewCount) </p>
+        <p> Comments: @Html.DisplayFor(m => m.Comments.CommentsCount) </p>
+    </td>
+</tr>
+

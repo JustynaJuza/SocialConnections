@@ -1,0 +1,24 @@
+﻿@model SocialAlliance.Models.WebConfig.TimelineConfig
+
+@using (Html.BeginForm("Add", "Timelines", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    
+    <tr>
+        <td>
+            @Html.EditorFor(m => m.Id)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.Name)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.Merged)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.SingleUser)
+        </td>
+        <td>
+            <input type="submit" value="Add" class="btn btn-default" />
+        </td>
+    </tr>
+}

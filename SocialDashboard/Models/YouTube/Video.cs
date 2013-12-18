@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace SocialDashboard.Models.YouTube
+namespace SocialAlliance.Models.YouTube
 {
     public enum VideoOrder
     {
@@ -16,7 +16,7 @@ namespace SocialDashboard.Models.YouTube
     }
 
     [JsonConverter(typeof(JsonYouTubeVideoConverter))]
-    public class Video : Entry, IDashboardEntry
+    public class Video : Entry, ISocialEntry
     {
         public VideoComments Comments { get; set; }
         public VideoStatistics Statistics { get; set; }

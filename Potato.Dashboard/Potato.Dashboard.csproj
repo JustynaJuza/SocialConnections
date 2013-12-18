@@ -11,7 +11,7 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Potato.SocialDashboard</RootNamespace>
+    <RootNamespace>Potato.Dashboard</RootNamespace>
     <AssemblyName>Potato.Dashboard</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
@@ -168,8 +168,9 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CredentialsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\TimelineController.cs" />
+    <Compile Include="Controllers\TimelinesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -212,7 +213,7 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\SocialDashboard.cshtml" />
+    <Content Include="Views\Home\Timeline.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\SplitSocialDashboard.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
@@ -227,19 +228,34 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\YouTube\Index.cshtml" />
-    <Content Include="Views\Shared\_YouTubeVideoListPartial.cshtml" />
+    <Content Include="Views\Home\_YouTubeVideoListPartial.cshtml" />
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
-    <Content Include="Views\Shared\_TwitterTweetListPartial.cshtml" />
+    <Content Include="Views\Home\_TwitterTweetListPartial.cshtml" />
     <Content Include="Views\Twitter\Index.cshtml" />
-    <Content Include="Views\Shared\_YouTubeChannelPartial.cshtml" />
-    <Content Include="Views\Shared\_TwitterUserPartial.cshtml" />
-    <Content Include="Views\Home\TimelineConfig.cshtml" />
-    <Content Include="Views\Home\_CreateTwitterProviderPartial.cshtml" />
-    <Content Include="Views\Shared\_YouTubePlaylistPartial.cshtml" />
+    <Content Include="Views\Home\_YouTubeChannelPartial.cshtml" />
+    <Content Include="Views\Home\_TwitterUserPartial.cshtml" />
+    <Content Include="Views\Timelines\Configure.cshtml" />
+    <Content Include="Views\Timelines\_CreateTwitterProviderPartial.cshtml" />
+    <Content Include="Views\Home\_YouTubePlaylistPartial.cshtml" />
+    <Content Include="SocialAlliance.Timelines.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="SocialAlliance.Authorization.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Home\_YouTubeVideoRowPartial.cshtml" />
+    <Content Include="Views\Home\_TwitterTweetRowPartial.cshtml" />
+    <Content Include="Views\Timelines\Index.cshtml" />
+    <Content Include="Views\Timelines\_CreateYouTubeProviderPartial.cshtml" />
+    <Content Include="Views\Credentials\Index.cshtml" />
+    <Content Include="Views\Credentials\_AddCredentialsPartial.cshtml" />
+    <Content Include="Views\Timelines\_CreateTimelinePartial.cshtml" />
+    <Content Include="Views\Timelines\_YouTubeProviderListPartial.cshtml" />
+    <Content Include="Views\Timelines\_TwitterProviderListPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Timeline\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -249,9 +265,9 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SocialDashboard\SocialDashboard.csproj">
+    <ProjectReference Include="..\SocialDashboard\SocialAlliance.csproj">
       <Project>{7496feaa-865d-4092-887c-4ed2c0990e0a}</Project>
-      <Name>SocialDashboard</Name>
+      <Name>SocialAlliance</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

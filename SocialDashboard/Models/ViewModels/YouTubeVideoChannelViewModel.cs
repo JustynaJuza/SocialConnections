@@ -1,10 +1,10 @@
-﻿using SocialDashboard.Models.YouTube;
+﻿using SocialAlliance.Models.YouTube;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SocialDashboard.Models
+namespace SocialAlliance.Models
 {
     public class YouTubeVideoChannelViewModel : AbstractExtensions
     {

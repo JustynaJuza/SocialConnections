@@ -1,0 +1,8 @@
+C:\Projects\Potato\SocialDashboard\bin\SocialDashboard.dll.config
+C:\Projects\Potato\SocialDashboard\bin\SocialDashboard.dll
+C:\Projects\Potato\SocialDashboard\bin\SocialDashboard.pdb
+C:\Projects\Potato\SocialDashboard\bin\Newtonsoft.Json.dll
+C:\Projects\Potato\SocialDashboard\bin\Newtonsoft.Json.xml
+C:\Projects\Potato\SocialDashboard\obj\Debug\SocialAlliance.csprojResolveAssemblyReference.cache
+C:\Projects\Potato\SocialDashboard\obj\Debug\SocialDashboard.dll
+C:\Projects\Potato\SocialDashboard\obj\Debug\SocialDashboard.pdb

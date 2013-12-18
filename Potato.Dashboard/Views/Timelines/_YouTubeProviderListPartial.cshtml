@@ -1,0 +1,91 @@
+﻿@model SocialAlliance.Models.WebConfig.TimelineConfig
+@using SocialAlliance.Models.WebConfig;
+@using SocialAlliance.Models;
+
+<table>
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("YouTube User")
+            </th>
+            <th>
+                @Html.DisplayName("Playlist Title")
+            </th>
+            <th>
+                @Html.DisplayName("Video Results")
+            </th>
+            <th>
+                @Html.DisplayName("Playlist Results")
+            </th>
+            <th>
+                @Html.DisplayName("Include Playlist Videos")
+            </th>
+            <th>
+                @Html.DisplayName("Video Start Results Index")
+            </th>
+            <th>
+                @Html.DisplayName("Playlist Start Results Index")
+            </th>
+            <th>
+                @Html.DisplayName("User Videos Order")
+            </th>
+            <th>
+                @Html.DisplayName("Playlist Videos Order")
+            </th>
+            <th>
+                @Html.DisplayName("Publish Time Description")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (YouTubeProviderConfig item in Model.YouTubeProviders)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlaylistTitle)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VideoResultsCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlaylistResultsCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IncludePlaylistVideos)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VideosStartResultsIndex)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlaylistsStartResultsIndex)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserVideosOrder)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlaylistVideosOrder)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IncludeHowLongSincePublished)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", item, new { @class = "btn btn-default" })
+                    @using (Html.BeginForm("DeleteProvider", "Timelines", new { timelineId = Model.Id, user = item.User, accountType = AccountType.youTube }, FormMethod.Post))
+                    {
+
+                        @Html.AntiForgeryToken()
+                        <input type="submit" value="Delete" class="btn btn-default" />
+                    }
+                    @Html.ActionLink("Test", "Test", item, new { @class = "btn btn-default" })
+                </td>
+            </tr>
+        }
+
+        @Html.Partial("_CreateYouTubeProviderPartial", new YouTubeProviderConfig() { TimelineId = Model.Id })
+
+    </tbody>
+</table>

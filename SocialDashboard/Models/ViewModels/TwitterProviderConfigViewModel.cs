@@ -1,9 +1,10 @@
-﻿using System;
+﻿using SocialAlliance.Models.WebConfig;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SocialDashboard.Models
+namespace SocialAlliance.Models
 {
     public class TwitterProviderConfigViewModel
     {
@@ -37,7 +38,7 @@ namespace SocialDashboard.Models
 
         public TwitterProviderConfigViewModel(TwitterProviderConfig config)
         {
-            TwitterUser = config.TwitterUser;
+            TwitterUser = config.User;
             TimelineResultsCount = config.TimelineResultsCount;
             OldestResultId = config.OldestResultId;
             IncludeReplies = config.IncludeReplies;

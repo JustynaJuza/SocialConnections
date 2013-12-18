@@ -1,0 +1,47 @@
+﻿@model SocialAlliance.Models.Twitter.Tweet
+
+<tr>
+    @* Include descriptive publish time *@
+    @if (ViewBag.HowLongSincePublished == true)
+    {
+        <td>
+            @Html.DisplayFor(m => m.HowLongSincePublished)
+        </td>
+    }
+    <td>
+        @* Additional profile details are included in tweets for all multiple-user timelines, but not for single-user timelines *@
+        @if (Model.User.Profile != null)
+        {
+            <a href="@Model.User.Link">
+                <img src="@Model.User.Profile.ImageInTweet">
+            </a>
+            <h4>
+                <a href="@Model.User.Link">
+                    <strong>@Html.DisplayFor(m => m.User.Name)</strong> @Html.DisplayFor(m => m.User.ScreenName)
+                </a>
+            </h4>
+        }
+
+        @* Decoding tweet text provided by Twitter API (special characters encoded in their HTML entity representation)
+            and parsing links described as separate JSON entities (updated in code during request fetching). *@
+        <p>@Html.Raw(WebUtility.HtmlDecode(Model.Text))</p>
+
+        @* Link to the original Twitter tweet *@
+        <a href="@Model.Link">
+            <p>@Html.DisplayFor(m => m.Published)</p>
+        </a>
+        <p> Retweets: @Html.DisplayFor(m => m.Statistics.RetweetsCount) | Favourites: @Html.DisplayFor(m => m.Statistics.FavouritesCount)</p>
+
+        @if (Model.Entities.Media != null)
+        {
+            foreach (var entity in Model.Entities.Media)
+            {
+
+                @* Possible to fetch various sizes of the included image, inserting after colon: small, medium, large *@
+                <img width="438" src="@entity.Source:medium" />
+            }
+        }
+        <hr />
+    </td>
+    <td></td>
+</tr>

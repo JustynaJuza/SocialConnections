@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SocialDashboard.Models.Twitter
+namespace SocialAlliance.Models.Twitter
 {
     [JsonConverter(typeof(JsonTwitterTweetConverter))]
-    public class Tweet : AbstractExtensions, IDashboardEntry
+    public class Tweet : AbstractExtensions, ISocialEntry
     {
         public static bool includeUserDetailsInTweet = false;
 

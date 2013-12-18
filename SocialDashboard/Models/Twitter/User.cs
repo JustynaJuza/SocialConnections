@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SocialDashboard.Models.Twitter
+namespace SocialAlliance.Models.Twitter
 {
     [JsonConverter(typeof(JsonTwitterUserConverter))]
     public class User : AbstractExtensions
@@ -14,7 +14,7 @@ namespace SocialDashboard.Models.Twitter
         public string Name { get; set; }
         public string ScreenName { get; set; }
         public string Description { get; set; }
-        public DateTime? Joined { get; set; }
+        public DateTime Joined { get; set; }
         public Uri Url { get; set; }
         public Uri Link { get; set; }
         public UserProfile Profile { get; set; }

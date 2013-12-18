@@ -1,0 +1,20 @@
+﻿@model IEnumerable<SocialAlliance.Models.YouTube.Video>
+
+<table>
+    <thead>
+        <tr>
+            @if (ViewBag.HowLongSincePublished == true)
+            {
+                <th></th>
+            }
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var video in Model)
+        {
+            @Html.Partial("_YouTubeVideoRowPartial", video)
+        }
+    </tbody>
+</table>

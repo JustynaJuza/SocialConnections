@@ -1,0 +1,19 @@
+﻿@model IEnumerable<SocialAlliance.Models.Twitter.Tweet>
+<table>
+    <thead>
+        <tr>
+            @if (ViewBag.HowLongSincePublished == true)
+            {
+                <th></th>
+            }
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tweet in Model)
+        {
+            @Html.Partial("_TwitterTweetRowPartial", tweet)
+        }
+    </tbody>
+</table>

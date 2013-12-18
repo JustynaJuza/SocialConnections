@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace SocialDashboard.Models.YouTube
+namespace SocialAlliance.Models.YouTube
 {
     public enum PlaylistOrder
     {

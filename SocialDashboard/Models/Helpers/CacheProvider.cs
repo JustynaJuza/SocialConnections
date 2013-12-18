@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Web;
 
-namespace SocialDashboard.Models
+namespace SocialAlliance.Models
 {
     /// <summary>
     /// A cache memory management provider.

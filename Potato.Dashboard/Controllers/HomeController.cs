@@ -1,8 +1,10 @@
-﻿using SocialDashboard.Models;
-using SocialDashboard.Models.Twitter;
-using SocialDashboard.Models.YouTube;
+﻿using SocialAlliance.Models;
+using SocialAlliance.Models.Twitter;
+using SocialAlliance.Models.WebConfig;
+using SocialAlliance.Models.YouTube;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -25,121 +27,113 @@ namespace Potato.Dashboard.Controllers
 
         public ActionResult Index()
         {
-            // Returns a SocialDashboardViewModel for the main View.
-            return View("SocialDashboard", PrepareDashboardViewModel(false));
+            // Returns a TimelineViewModel for the main View.
+            return View("Timeline", PrepareTimelineViewModel("936DA01F-9ABD-4d9d-80C7-02AF85C822A8", true));
         }
 
         public ActionResult SplitSocialDashboard()
         {
-            // Returns a SocialDashboardViewModel for the separate column View.
-            return View("SocialDashboard", PrepareDashboardViewModel(false, false));
-        }
-
-        public ActionResult TimelineConfig()
-        {
-            TwitterConfig twitterConfig = TwitterConfig.Read();
-            var currentProviderConfig = new List<TwitterProviderConfigViewModel>();
-            foreach (TwitterProviderConfig entry in twitterConfig.MergedTimeline)
-            {
-                currentProviderConfig.Add(new TwitterProviderConfigViewModel(entry));
-            }
-
-            var timelineConfig = new TimelineConfigViewModel()
-            {
-                Id = Guid.NewGuid(),
-                TwitterProviderConfig = currentProviderConfig,
-                MergedTimeline = true
-            };
-            return View(timelineConfig);
-        }
-
-        [HttpPost]
-        public ActionResult Delete(string userName)
-        {
-            return View();
+            // Returns a TimelineViewModel for the separate column View.
+            return View("Timeline", PrepareTimelineViewModel("0f8fad5b-d9cb-469f-a165-70867728950e", true));
         }
 
 
         #region VIEWMODEL HANDLING
         /// <summary>
-        /// Returns a new SocialDashboardViewModel for the Dashboard View.
+        /// Returns a new TimelineViewModel for the Dashboard View.
         /// </summary>
-        private SocialDashboardViewModel PrepareDashboardViewModel(bool singleUser, bool mergedTimeline = true)
+        private TimelineViewModel PrepareTimelineViewModel(string TimelineNameOrId, bool isId = false)
         {
-            SocialDashboardViewModel socialDashboard = null;
-            // TODO: Get YouTube timelines from config.
-            List<YouTubeProvider> youTubeProviders = GetYouTubeProvidersFromConfig();
-            List<TwitterProvider> twitterProviders = GetTwitterProvidersFromConfig();
+            var config = SocialAllianceConfig.Read();
+            var timelineConfig = config.ReadTimeline(TimelineNameOrId, isId);
 
-            // If provider configured for any social account, fetch data.
+            if (timelineConfig == null)
+            {
+                TempData["Error"] = "There is no timeline configured with this name or Id: " + TimelineNameOrId;
+                return null;
+            }
+
+            var timeline = new TimelineViewModel(timelineConfig);
+            // TODO: Get YouTube timelines from config.
+            List<YouTubeProvider> youTubeProviders = GetYouTubeProvidersFromConfig(timelineConfig.YouTubeProviders);
+            List<TwitterProvider> twitterProviders = GetTwitterProvidersFromConfig(timelineConfig.TwitterProviders);
+
+
+
+            // If providerConfig configured for any social account, fetch data.
             if (youTubeProviders.Any() || twitterProviders.Any())
             {
-                if (youTubeProviders.Count > 1 && singleUser == true)
+                if (youTubeProviders.Count > 1 && timeline.SingleUser == true)
                 {
                     TempData["Error"] = "The timeline was specified to be for only one user, but more than one YouTube feed was requested.";
-                    singleUser = false;
+                    timeline.SingleUser = false;
                 }
-                if (twitterProviders.Count > 1 && singleUser == true)
+                if (twitterProviders.Count > 1 && timeline.SingleUser == true)
                 {
                     TempData["Error"] = "The timeline was specified to be for only one user, but more than one Twitter timeline feed was requested.";
-                    singleUser = false;
+                    timeline.SingleUser = false;
                 }
 
                 // TODO: Optional? Modify to show publish time in tweets only?
-                var providers = new List<IDashboardProvider>(youTubeProviders).Concat(twitterProviders).ToList();
+                var providers = new List<ISocialProvider>(youTubeProviders).Concat(twitterProviders).ToList();
                 ViewBag.HowLongSincePublished = HowLongSincePublishedConsistency(providers);
 
-                if (singleUser)
+                if (timeline.SingleUser)
                 {
-                    socialDashboard = SingleUserSocialDashboardViewModel(mergedTimeline, youTubeProviders.ElementAt(0), twitterProviders.ElementAt(0));
+                    timeline = SingleUserTimelineViewModel(timeline, youTubeProviders.ElementAt(0), twitterProviders.ElementAt(0));
                 }
                 else
                 {
-                    socialDashboard = MultipleUsersSocialDashboardViewModel(mergedTimeline, youTubeProviders, twitterProviders);
+                    timeline = MultipleUsersTimelineViewModel(timeline, youTubeProviders, twitterProviders);
                 }
             }
 
-            ViewBag.MergedTimeline = mergedTimeline;
-            ViewBag.SingleUser = singleUser;
-            return socialDashboard;
+            return timeline;
         }
 
-        private SocialDashboardViewModel SingleUserSocialDashboardViewModel(bool mergedTimeline, YouTubeProvider youTube, TwitterProvider twitter)
+        private TimelineViewModel SingleUserTimelineViewModel(TimelineViewModel timeline, YouTubeProvider youTube, TwitterProvider twitter)
         {
-            var socialDashboard = new SocialDashboardViewModel();
-
             if (youTube != null)
             {
                 var youTubeErrorText = "";
-                socialDashboard.YouTubeAccount = youTube.GetYouTubeUserData(out youTubeErrorText);
-                TempData["Error"] += (!String.IsNullOrEmpty(youTubeErrorText) ? youTubeErrorText + " " : null);
+                timeline.YouTubeAccount = youTube.GetYouTubeUserData(out youTubeErrorText);
+                TempData["Error"] += youTubeErrorText;
             }
             if (twitter != null)
             {
                 var twitterErrorText = "";
-                socialDashboard.TwitterAccount = twitter.GetTwitterUserData(out twitterErrorText);
-                TempData["Error"] += (!String.IsNullOrEmpty(twitterErrorText) ? twitterErrorText : null);
+                timeline.TwitterAccount = twitter.GetTwitterUserData(out twitterErrorText);
+                TempData["Error"] += twitterErrorText;
             }
 
-            if (mergedTimeline)
+            // If user-related request errors exist, return without attempting to load the timeline data.
+            if ((string) TempData["Error"] != "")
             {
-                var timeline = new List<IDashboardEntry>(socialDashboard.TwitterAccount.Tweets);
-                timeline = timeline.Concat(socialDashboard.YouTubeAccount.Playlists.ElementAt(0).Entries).ToList();
-                timeline.Sort(new DashboardEntriesRecentDateFirstComparer());
-                socialDashboard.RecentActivity = timeline;
+                return null;
             }
             else
             {
-                socialDashboard.TwitterAccount.Tweets.ToList().Sort(new DashboardEntriesRecentDateFirstComparer());
-                socialDashboard.YouTubeAccount.Playlists.ElementAt(0).Entries.ToList().Sort(new DashboardEntriesRecentDateFirstComparer());
+                TempData["Error"] = null;
             }
 
-            return socialDashboard;
+            if (timeline.Merged)
+            {
+                var mergedTimeline = new List<ISocialEntry>(timeline.TwitterAccount.Tweets);
+                mergedTimeline = mergedTimeline.Concat(timeline.YouTubeAccount.Playlists.ElementAt(0).Entries).ToList();
+                mergedTimeline.Sort(new SocialEntriesRecentDateFirstComparer());
+                timeline.RecentActivity = mergedTimeline;
+            }
+            else
+            {
+                timeline.TwitterAccount.Tweets.ToList().Sort(new SocialEntriesRecentDateFirstComparer());
+                timeline.YouTubeAccount.Playlists.ElementAt(0).Entries.ToList().Sort(new SocialEntriesRecentDateFirstComparer());
+            }
+
+            return timeline;
         }
 
-        private SocialDashboardViewModel MultipleUsersSocialDashboardViewModel(bool mergedTimeline, IList<YouTubeProvider> youTubeProviders, IList<TwitterProvider> twitterProviders)
+        private TimelineViewModel MultipleUsersTimelineViewModel(TimelineViewModel timeline, IList<YouTubeProvider> youTubeProviders, IList<TwitterProvider> twitterProviders)
         {
-            var socialDashboard = new SocialDashboardViewModel();
             var youTubeTimeline = new List<Video>();
             var twitterTimeline = new List<Tweet>();
 
@@ -152,53 +146,57 @@ namespace Potato.Dashboard.Controllers
                 twitterTimeline = twitterTimeline.Concat(entry.GetTwitterUserTimeline()).ToList();
             }
 
-            if (mergedTimeline)
+            if (timeline.Merged)
             {
-                var timeline = new List<IDashboardEntry>(twitterTimeline).Concat(youTubeTimeline).ToList();
-                timeline.Sort(new DashboardEntriesRecentDateFirstComparer());
-                socialDashboard.RecentActivity = timeline;
+                var mergedTimeline = new List<ISocialEntry>(twitterTimeline).Concat(youTubeTimeline).ToList();
+                mergedTimeline.Sort(new SocialEntriesRecentDateFirstComparer());
+                timeline.RecentActivity = mergedTimeline;
             }
             else
             {
-                twitterTimeline.Sort(new DashboardEntriesRecentDateFirstComparer());
-                youTubeTimeline.Sort(new DashboardEntriesRecentDateFirstComparer());
-                socialDashboard.TwitterAccount = new TwitterTimelineViewModel(twitterTimeline);
+                twitterTimeline.Sort(new SocialEntriesRecentDateFirstComparer());
+                youTubeTimeline.Sort(new SocialEntriesRecentDateFirstComparer());
+                timeline.TwitterAccount = new TwitterTimelineViewModel(twitterTimeline);
                 var playlist = new List<Playlist>();
                 playlist.Add(new Playlist(youTubeTimeline));
-                socialDashboard.YouTubeAccount = new YouTubeVideoChannelViewModel(playlist);
+                timeline.YouTubeAccount = new YouTubeVideoChannelViewModel(playlist);
             }
 
-            return socialDashboard;
+            return timeline;
         }
 
         /// <summary>
-        /// Get a list of YouTube provider configurations from Web.config.
+        /// Get a list of YouTube providerConfig configurations from Web.config.
         /// </summary>
-        private List<YouTubeProvider> GetYouTubeProvidersFromConfig()
+        private List<YouTubeProvider> GetYouTubeProvidersFromConfig(ConfigurationElementCollection youTubeProviderConfigs)
         {
-            return new List<YouTubeProvider>()
+            if (youTubeProviderConfigs.Count > 0)
             {
-                new YouTubeProvider("ITV1", 5),
-                new YouTubeProvider("paulsoaresjr", 5)
-            };
+                var youTubeProviders = new List<YouTubeProvider>();
+                foreach (YouTubeProviderConfig entry in youTubeProviderConfigs)
+                {
+                    youTubeProviders.Add(new YouTubeProvider(entry));
+                }
+
+                return youTubeProviders;
+            }
+
+            return new List<YouTubeProvider>();
+            //{
+            //    new YouTubeProvider("ITV1", 5),
+            //    new YouTubeProvider("paulsoaresjr", 5)
+            //};
         }
 
         /// <summary>
-        /// Get a list of Twitter provider configurations from Web.config.
+        /// Get a list of Twitter providerConfig configurations from Web.config.
         /// </summary>
-        private List<TwitterProvider> GetTwitterProvidersFromConfig()
+        private List<TwitterProvider> GetTwitterProvidersFromConfig(ConfigurationElementCollection twitterProviderConfigs)
         {
-            TwitterConfig twitterConfig = TwitterConfig.Read();
-            if (twitterConfig.MergedTimeline.Count > 0)
+            if (twitterProviderConfigs.Count > 0)
             {
                 var twitterProviders = new List<TwitterProvider>();
-                //{
-                //    new TwitterProvider("ITV", 20, true, true), 
-                //    new TwitterProvider("BigReunionITV", 20, true, true), 
-                //    new TwitterProvider("ITV2", 20, true, true)
-                //};
-
-                foreach (TwitterProviderConfig entry in twitterConfig.MergedTimeline)
+                foreach (TwitterProviderConfig entry in twitterProviderConfigs)
                 {
                     twitterProviders.Add(new TwitterProvider(entry));
                 }
@@ -210,6 +208,11 @@ namespace Potato.Dashboard.Controllers
             }
 
             return new List<TwitterProvider>();
+            //{
+            //    new TwitterProvider("ITV", 20, true, true), 
+            //    new TwitterProvider("BigReunionITV", 20, true, true), 
+            //    new TwitterProvider("ITV2", 20, true, true)
+            //};
         }
         #endregion VIEWMODEL HANDLING
 
@@ -238,7 +241,7 @@ namespace Potato.Dashboard.Controllers
         /// <para>(All timelines calculate descriptive time and it is displayed, or disable calculating entirely).</para>
         /// </summary>
         /// <param name="providers">The list of providers included in the merged timeline.</param>
-        private bool? HowLongSincePublishedConsistency(IList<IDashboardProvider> providers)
+        private bool? HowLongSincePublishedConsistency(IList<ISocialProvider> providers)
         {
             // Take the value of the first element as sample.
             var includeHowLongSincePublished = providers.ElementAt(0).IncludeHowLongSincePublished;
@@ -246,7 +249,7 @@ namespace Potato.Dashboard.Controllers
             {
                 if (includeHowLongSincePublished == false)
                 {
-                    // If one provider doesn't include publish string, don't calculate it in any other providers.
+                    // If one providerConfig doesn't include publish string, don't calculate it in any other providers.
                     // Rule: performance over majority, if one is inconsistent, prefer performace and skip calculation.
                     for (int i = 1; i < providers.Count; i++)
                     {

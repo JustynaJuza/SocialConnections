@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Web;
 
-namespace SocialDashboard.Models
+namespace SocialAlliance.Models
 {
     // Overridong ToString allows to see all properties of an object also in Debug mode, not only when explicitly using the extension method.
     public abstract class AbstractExtensions

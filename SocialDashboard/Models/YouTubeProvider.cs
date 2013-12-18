@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SocialDashboard.Models.YouTube;
+using SocialAlliance.Models.WebConfig;
+using SocialAlliance.Models.YouTube;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,17 +9,17 @@ using System.Linq;
 using System.Net;
 using System.Web;
 
-namespace SocialDashboard.Models
+namespace SocialAlliance.Models
 {
     /// <summary>
     /// Provides YouTube requests and response handling for channels, videos and playlists.
     /// </summary>
-    public class YouTubeProvider : AbstractExtensions, IDashboardProvider
+    public class YouTubeProvider : AbstractExtensions, ISocialProvider
     {
         #region YOUTUBE REQUEST SETTINGS
         /// <summary>
         /// YouTube user whose videos we request.</summary>
-        public string YouTubeUser { get; set; }
+        public string User { get; set; }
         /// <summary>
         /// Playlist name for fetching videos from specific playlist.</summary>
         public string PlaylistTitle { get; set; }
@@ -71,7 +72,7 @@ namespace SocialDashboard.Models
         public YouTubeProvider(string youTubeUser)
             : this()
         {
-            YouTubeUser = youTubeUser;
+            User = youTubeUser;
         }
 
         /// <summary>
@@ -99,6 +100,20 @@ namespace SocialDashboard.Models
             VideoResultsCount = videoResultsCount;
             UserVideosOrder = userVideosOrder;
         }
+
+        public YouTubeProvider(YouTubeProviderConfig config)
+        {
+            User = config.User;
+            PlaylistTitle = config.PlaylistTitle;
+            VideoResultsCount = config.VideoResultsCount;
+            PlaylistResultsCount = config.PlaylistResultsCount;
+            VideosStartResultsIndex = config.VideosStartResultsIndex;
+            PlaylistsStartResultsIndex = config.PlaylistsStartResultsIndex;
+            IncludePlaylistVideos = config.IncludePlaylistVideos;
+            UserVideosOrder = config.UserVideosOrder;
+            PlaylistVideosOrder = config.PlaylistVideosOrder;
+            IncludeHowLongSincePublished = config.IncludeHowLongSincePublished;
+        }
         #endregion CONSTRUCTORS
 
         /// <summary>
@@ -108,24 +123,25 @@ namespace SocialDashboard.Models
         /// <param name="errorText">Error text if request failed, with purpose for a TempData["Error"] to be assigned.</param>
         public YouTubeVideoChannelViewModel GetYouTubeUserData(out string errorText)
         {
+            errorText = null;
             var userChannel = new YouTubeVideoChannelViewModel();
-            userChannel.Channel = GetChannel(YouTubeUser);
+            userChannel.Channel = GetChannel(User);
 
             // Set error only if user not found on YouTube.
             if (userChannel.Channel == null)
             {
-                errorText = "No user with the name " + YouTubeUser + " exists on YouTube.";
+                errorText = "No user with the name " + User + " exists on YouTube.";
                 return null;
             }
 
             // Get all playlists for user
             if (PlaylistResultsCount > 0)
             {
-                var channelPlaylists = GetChannelPlaylists(YouTubeUser, PlaylistTitle, IncludeHowLongSincePublished, PlaylistResultsCount, PlaylistsStartResultsIndex, true, VideoResultsCount, PlaylistVideosOrder);
+                var channelPlaylists = GetChannelPlaylists(User, PlaylistTitle, IncludeHowLongSincePublished, PlaylistResultsCount, PlaylistsStartResultsIndex, true, VideoResultsCount, PlaylistVideosOrder);
                 if (channelPlaylists == null)
                 {
                     // Add error if search for specific playlist returned no results.
-                    errorText = PlaylistTitle != "" ? "No playlist with the title '" + PlaylistTitle + "' was found for user " + YouTubeUser : null;
+                    errorText = PlaylistTitle != "" ? "No playlist with the title '" + PlaylistTitle + "' was found for user " + User : null;
                 }
                 else
                 {
@@ -134,31 +150,30 @@ namespace SocialDashboard.Models
             }
 
             // List user's most recent uploads as first playlist.
-            userChannel.Playlists.Insert(0, new Playlist(GetChannelVideos(YouTubeUser, IncludeHowLongSincePublished, VideoResultsCount, VideosStartResultsIndex, UserVideosOrder))
+            userChannel.Playlists.Insert(0, new Playlist(GetChannelVideos(User, IncludeHowLongSincePublished, VideoResultsCount, VideosStartResultsIndex, UserVideosOrder))
             {
                 Title = "Most Recent Uploads",
-                Link = new Uri("http://www.youtube.com/user/" + YouTubeUser + "/videos")
+                Link = new Uri("http://www.youtube.com/user/" + User + "/videos")
             });
 
-            errorText = null;
             return userChannel;
         }
 
         public Channel GetChannel()
         {
-            return GetChannel(YouTubeUser);
+            return GetChannel(User);
         }
 
         public IList<Playlist> GetChannelPlaylists(bool withVideos, string playlistTitle = "")
         {
-            return GetChannelPlaylists(YouTubeUser, playlistTitle, IncludeHowLongSincePublished,
+            return GetChannelPlaylists(User, playlistTitle, IncludeHowLongSincePublished,
                 PlaylistResultsCount, PlaylistsStartResultsIndex,
                 withVideos, VideoResultsCount, PlaylistVideosOrder);
         }
 
         public IList<Video> GetChannelVideos()
         {
-            return GetChannelVideos(YouTubeUser, IncludeHowLongSincePublished,
+            return GetChannelVideos(User, IncludeHowLongSincePublished,
                 VideoResultsCount, VideosStartResultsIndex, UserVideosOrder);
         }
 

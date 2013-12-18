@@ -1,4 +1,4 @@
-﻿@model SocialDashboard.Models.SocialDashboardViewModel
+﻿@model SocialAlliance.Models.TimelineViewModel
 @{
     ViewBag.Title = "Social Dashboard";
 }
@@ -13,7 +13,7 @@
 @if (Model != null)
 {
     @*----------------------------------------------------------- USER INFO -----------------------------------------------------------*@
-    if (ViewBag.SingleUserInfo == true)
+    if (Model.SingleUser == true)
     {
         <div class="row">
             <div class="col-md-6">

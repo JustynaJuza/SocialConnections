@@ -1,0 +1,55 @@
+﻿@model SocialAlliance.Models.WebConfig.YouTubeProviderConfig
+@using SocialAlliance.Models.YouTube;
+
+@using (Html.BeginForm("AddYouTubeProviderToTimeline", "Timelines", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <tr>
+        @Html.HiddenFor(m => m.TimelineId)
+        <td>
+            @Html.EditorFor(m => m.User)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.PlaylistTitle)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.VideoResultsCount)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.PlaylistResultsCount)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.IncludePlaylistVideos)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.VideosStartResultsIndex)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.PlaylistsStartResultsIndex)
+        </td>
+        <td>
+            @{var videoOrderOptions = new List<SelectListItem>();}
+
+            @foreach (var order in Enum.GetNames(typeof(VideoOrder)))
+            {
+                videoOrderOptions.Add(new SelectListItem { Text = order, Value = order });
+            }
+            @Html.DropDownListFor(m => m.UserVideosOrder, videoOrderOptions)
+        </td>
+        <td>
+            @{var playlistOrderOptions = new List<SelectListItem>();}
+
+            @foreach (var order in Enum.GetNames(typeof(PlaylistOrder)))
+            {
+                playlistOrderOptions.Add(new SelectListItem { Text = order, Value = order });
+            }
+            @Html.DropDownListFor(m => m.PlaylistVideosOrder, playlistOrderOptions)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.IncludeHowLongSincePublished)
+        </td>
+        <td>
+            <input type="submit" value="Add" class="btn btn-default" />
+        </td>
+    </tr>
+}

@@ -1,0 +1,30 @@
+﻿@model SocialAlliance.Models.WebConfig.TwitterProviderConfig
+
+@using (Html.BeginForm("AddTwitterProviderToTimeline", "Timelines", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <tr>
+        @Html.HiddenFor(m => m.TimelineId)
+        <td>
+            @Html.EditorFor(m => m.User)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.TimelineResultsCount)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.OldestResultId)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.IncludeReplies)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.IncludeRetweets)
+        </td>
+        <td>
+            @Html.EditorFor(m => m.IncludeHowLongSincePublished)
+        </td>
+        <td>
+            <input type="submit" value="Add" class="btn btn-default" />
+        </td>
+    </tr>
+}

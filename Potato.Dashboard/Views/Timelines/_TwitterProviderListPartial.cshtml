@@ -1,0 +1,66 @@
+﻿@model SocialAlliance.Models.WebConfig.TimelineConfig
+@using SocialAlliance.Models.WebConfig;
+@using SocialAlliance.Models;
+
+<table>
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Twitter User")
+            </th>
+            <th>
+                @Html.DisplayName("Timeline Results")
+            </th>
+            <th>
+                @Html.DisplayName("Oldest Result Id")
+            </th>
+            <th>
+                @Html.DisplayName("Replies")
+            </th>
+            <th>
+                @Html.DisplayName("Retweets")
+            </th>
+            <th>
+                @Html.DisplayName("Publish Time Description")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (TwitterProviderConfig item in Model.TwitterProviders)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TimelineResultsCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OldestResultId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IncludeReplies)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IncludeRetweets)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IncludeHowLongSincePublished)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", item, new { @class = "btn btn-default" })
+                    @using (Html.BeginForm("DeleteProvider", "Timelines", new { timelineId = Model.Id, user = item.User, accountType = AccountType.twitter }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="submit" value="Delete" class="btn btn-default" />
+                    }
+                    @Html.ActionLink("Test", "Test", item, new { @class = "btn btn-default" })
+                </td>
+            </tr>
+        }
+
+        @Html.Partial("_CreateTwitterProviderPartial", new TwitterProviderConfig() { TimelineId = Model.Id })
+
+    </tbody>
+</table>

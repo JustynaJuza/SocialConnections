@@ -1,0 +1,102 @@
+﻿@model SocialAlliance.Models.TimelineViewModel
+@using SocialAlliance.Models.YouTube;
+@using SocialAlliance.Models.Twitter;
+@{
+    ViewBag.Title = "Social Dashboard";
+}
+
+@Html.Partial("_MessagePartial")
+
+@if (Model != null)
+{
+    @*----------------------------------------------------------- USER INFO -----------------------------------------------------------*@
+
+    if (Model.SingleUser == true)
+    {
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-md-6">
+                    @Html.Partial("_YouTubeChannelPartial", Model.YouTubeAccount.Channel)
+                </div>
+                <div class="col-md-6">
+                    @Html.Partial("_TwitterUserPartial", Model.TwitterAccount.User)
+                </div>
+            </div>
+        </div>
+    }
+
+    @*------------------------------------------------------------ ENTRIES ------------------------------------------------------------*@
+
+    <hr />
+    <div class="row">
+
+        @*--------------------------------------------------------- MERGED ------------------------------------------------------------*@
+
+        @if (Model.Merged == true)
+        {
+            foreach (var dashboardEntry in Model.RecentActivity)
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            @if (ViewBag.HowLongSincePublished == true)
+                            {
+                                <th></th>
+                            }
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @*----------------------------------------- VIDEO -------------------------------------------------------------*@
+
+                        @if (dashboardEntry.GetType() == typeof(Video))
+                        {
+                            @Html.Partial("_YouTubeVideoRowPartial", (Video) dashboardEntry)
+                        }
+
+                        @*----------------------------------------- TWEET -------------------------------------------------------------*@
+
+                        else
+                        {
+                            @Html.Partial("_TwitterTweetRowPartial", (Tweet) dashboardEntry)
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+
+        @*-------------------------------------------------------- SEPARATE -----------------------------------------------------------*@
+
+        else
+        {
+
+            @*----------------------------------------------------- VIDEOS ------------------------------------------------------------*@
+
+            foreach (var playlist in Model.YouTubeAccount.Playlists)
+            {
+                <div class="col-md-6">
+                    @if (playlist.Title != null)
+                    {
+                        @Html.Partial("_YouTubePlaylistPartial", playlist)
+                    }
+
+                    @if (playlist.Entries != null)
+                    {
+                        @Html.Partial("_YouTubeVideoListPartial", playlist.Entries)
+                    }
+                </div>
+            }
+
+            @*----------------------------------------------------- TWEETS ------------------------------------------------------------*@
+
+            <div class="col-md-6">
+                @if (Model.TwitterAccount.Tweets != null)
+                {
+                    @Html.Partial("_TwitterTweetListPartial", Model.TwitterAccount.Tweets)
+                }
+            </div>
+        }
+    </div>
+}

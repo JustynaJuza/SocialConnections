@@ -1,25 +1,26 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SocialDashboard.Models.Twitter;
+using SocialAlliance.Models.Twitter;
+using SocialAlliance.Models.WebConfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
 
-namespace SocialDashboard.Models
+namespace SocialAlliance.Models
 {
     /// <summary>
     /// Provides Twitter requests and response handling for users, tweets and timelines.
     /// </summary>
-    public class TwitterProvider : AbstractExtensions, IDashboardProvider
+    public class TwitterProvider : AbstractExtensions, ISocialProvider
     {
         // The cache object saving the permanent application-only authorization token to prevent sending too many requests.
         CacheProvider cache = new CacheProvider();
         #region TWITTER REQUEST SETTINGS
         /// <summary>
         /// Twitter user whose timeline we request.</summary>
-        public string TwitterUser { get; set; }
+        public string User { get; set; }
         /// <summary>
         /// How many tweets should be feteched from timeline.
         /// <para>Important: When filtering out replies and retweets you get less than the count, because filtering is applied after fetching the specific count.</para></summary>
@@ -63,7 +64,7 @@ namespace SocialDashboard.Models
         public TwitterProvider(string twitterUser, int timelineResultsCount = 50, bool includeUserDetailsInTweet = false, bool includeHowLongSincePublished = false)
             : this()
         {
-            TwitterUser = twitterUser;
+            User = twitterUser;
             TimelineResultsCount = timelineResultsCount;
             IncludeHowLongSincePublished = includeHowLongSincePublished;
             IncludeUserDetailsInTweet = includeUserDetailsInTweet;
@@ -75,7 +76,7 @@ namespace SocialDashboard.Models
         /// <param name="config">The configuration handler.</param>
         public TwitterProvider(TwitterProviderConfig config)
         {
-            TwitterUser = config.TwitterUser;
+            User = config.User;
             TimelineResultsCount = config.TimelineResultsCount;
             OldestResultId = config.OldestResultId;
             IncludeReplies = config.IncludeReplies;
@@ -90,12 +91,12 @@ namespace SocialDashboard.Models
             errorText = null;
 
             var twitterTimeline = new TwitterTimelineViewModel();
-            twitterTimeline.User = GetTwitterUser(errorText);
+            twitterTimeline.User = GetTwitterUser(out errorText);
 
             // Show error only if user not found on YouTube.
             if (twitterTimeline.User == null)
             {
-                errorText = "No user with the name " + TwitterUser + " exists on Twitter.";
+                errorText = "No user with the name " + User + " exists on Twitter.";
                 return null;
             }
             
@@ -107,11 +108,11 @@ namespace SocialDashboard.Models
         {
             errorText = null;
 
-            var user = GetTwitterUser(TwitterUser);
+            var user = GetTwitterUser(User);
             // Show error only if user not found on YouTube.
             if (user == null)
             {
-                errorText = "No user with the name " + TwitterUser + " exists on Twitter.";
+                errorText = "No user with the name " + User + " exists on Twitter.";
                 return null;
             }
             return user;
@@ -119,7 +120,7 @@ namespace SocialDashboard.Models
 
         public IList<Tweet> GetTwitterUserTimeline()
         {
-            return GetTwitterUserTimeline(TwitterUser, false,
+            return GetTwitterUserTimeline(User, false,
                 TimelineResultsCount, IncludeRetweets, IncludeReplies,
                 OldestResultId, !IncludeUserDetailsInTweet, IncludeHowLongSincePublished);
         }
@@ -214,10 +215,11 @@ namespace SocialDashboard.Models
         private string GetTwitterAuthorizationToken()
         {
             System.Diagnostics.Debug.WriteLine("Requesting Twitter authorization token");
-            // Twitter registered application details from Web.config section.
-            TwitterConfig twitterConfig = TwitterConfig.Read();
-            var consumerKey = twitterConfig.Credentials.ConsumerKey;
-            var consumerSecret = twitterConfig.Credentials.ConsumerSecret;
+            // Retrieve Twitter registered application credentials from Web.config section.
+            var config = SocialAllianceConfig.Read();
+            var credentials = config.ReadCredentials(AccountType.twitter);
+            var consumerKey = credentials.ConsumerKey;
+            var consumerSecret = credentials.ConsumerSecret;
 
             // Encoding application details for application-only authorization token request.
             var bearerTokenCredentials = System.Text.Encoding.ASCII.GetBytes(consumerKey + ":" + consumerSecret);

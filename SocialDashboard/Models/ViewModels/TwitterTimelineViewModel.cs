@@ -1,10 +1,10 @@
-﻿using SocialDashboard.Models.Twitter;
+﻿using SocialAlliance.Models.Twitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SocialDashboard.Models
+namespace SocialAlliance.Models
 {
     public class TwitterTimelineViewModel : AbstractExtensions
     {
