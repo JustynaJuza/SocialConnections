@@ -16,7 +16,7 @@ namespace SocialAlliance.Models
     public class TwitterProvider : AbstractExtensions, ISocialProvider
     {
         // The cache object saving the permanent application-only authorization token to prevent sending too many requests.
-        CacheProvider cache = new CacheProvider();
+        static CacheProvider cache = new CacheProvider();
         #region TWITTER REQUEST SETTINGS
         /// <summary>
         /// Twitter user whose timeline we request.</summary>
@@ -52,7 +52,7 @@ namespace SocialAlliance.Models
             OldestResultId = "";
             IncludeReplies = false;
             IncludeRetweets = false;
-            IncludeUserDetailsInTweet = false;
+            IncludeUserDetailsInTweet = true;
             IncludeHowLongSincePublished = false;
         }
 
@@ -81,10 +81,30 @@ namespace SocialAlliance.Models
             OldestResultId = config.OldestResultId;
             IncludeReplies = config.IncludeReplies;
             IncludeRetweets = config.IncludeRetweets;
-            IncludeUserDetailsInTweet = config.IncludeUserDetailsInTweet;
             IncludeHowLongSincePublished = config.IncludeHowLongSincePublished;
         }
         #endregion CONSTRUCTORS
+
+        /// <summary>
+        /// Performs a sample request to the user's Twitter account, testing the connection.
+        /// </summary>
+        public static string TestUserRequest(string user)
+        {
+            var requestUri = "users/show.json?screen_name=" + user;
+            try
+            {
+                if (GetJsonRequestResults(requestUri) == null)
+                {
+                    return "No user with the name " + user + " exists on Twitter.";
+                }
+            }
+            catch (AuthorizationException ex)
+            {
+                return ex.Message;
+            }
+
+            return null;
+        }
 
         public TwitterTimelineViewModel GetTwitterUserData(out string errorText)
         {
@@ -99,7 +119,7 @@ namespace SocialAlliance.Models
                 errorText = "No user with the name " + User + " exists on Twitter.";
                 return null;
             }
-            
+
             twitterTimeline.Tweets = GetTwitterUserTimeline();
             return twitterTimeline;
         }
@@ -108,14 +128,25 @@ namespace SocialAlliance.Models
         {
             errorText = null;
 
-            var user = GetTwitterUser(User);
-            // Show error only if user not found on YouTube.
-            if (user == null)
+            try
             {
-                errorText = "No user with the name " + User + " exists on Twitter.";
-                return null;
+                var user = GetTwitterUser(User);
+
+                // Show error only if user not found on YouTube.
+                if (user == null)
+                {
+                    errorText = "No user with the name " + User + " exists on Twitter.";
+                    return null;
+                }
+
+                return user;
             }
-            return user;
+            catch (AuthorizationException ex)
+            {
+                errorText = ex.Message;
+            }
+
+            return null;
         }
 
         public IList<Tweet> GetTwitterUserTimeline()
@@ -212,48 +243,57 @@ namespace SocialAlliance.Models
         /// <summary>
         /// Requests and caches the Twitter API application-only authorization token.
         /// </summary>
-        private string GetTwitterAuthorizationToken()
+        private static string GetTwitterAuthorizationToken()
         {
             System.Diagnostics.Debug.WriteLine("Requesting Twitter authorization token");
             // Retrieve Twitter registered application credentials from Web.config section.
             var config = SocialAllianceConfig.Read();
             var credentials = config.ReadCredentials(AccountType.twitter);
-            var consumerKey = credentials.ConsumerKey;
-            var consumerSecret = credentials.ConsumerSecret;
-
-            // Encoding application details for application-only authorization token request.
-            var bearerTokenCredentials = System.Text.Encoding.ASCII.GetBytes(consumerKey + ":" + consumerSecret);
-            var encodedBearerTokenCredentials = Convert.ToBase64String(bearerTokenCredentials);
-
-            var requestHandler = new WebClient();
-            // Format request header including application credentials.
-            requestHandler.Headers.Add("Authorization: Basic " + encodedBearerTokenCredentials);
-            requestHandler.Headers.Add("Content-Type: application/x-www-form-urlencoded;charset=UTF-8");
-
-            try
+            if (credentials != null)
             {
-                // Send Twitter-formated request to retrieve permanent authorization token (invalidated only on request).
-                var jsonString = requestHandler.UploadString(new Uri("https://api.twitter.com/oauth2/token"), "grant_type=client_credentials");
-                var jsonObject = JObject.Parse(jsonString);
-                return (string) jsonObject.SelectToken("access_token");
+                var consumerKey = credentials.ConsumerKey;
+                var consumerSecret = credentials.ConsumerSecret;
+
+                // Encoding application details for application-only authorization token request.
+                var bearerTokenCredentials = System.Text.Encoding.ASCII.GetBytes(consumerKey + ":" + consumerSecret);
+                var encodedBearerTokenCredentials = Convert.ToBase64String(bearerTokenCredentials);
+
+                var requestHandler = new WebClient();
+                // Format request header including application credentials.
+                requestHandler.Headers.Add("Authorization: Basic " + encodedBearerTokenCredentials);
+                requestHandler.Headers.Add("Content-Type: application/x-www-form-urlencoded;charset=UTF-8");
+
+                try
+                {
+                    // Send Twitter-formated request to retrieve permanent authorization token (invalidated only on request).
+                    var jsonString = requestHandler.UploadString(new Uri("https://api.twitter.com/oauth2/token"), "grant_type=client_credentials");
+                    var jsonObject = JObject.Parse(jsonString);
+                    return (string) jsonObject.SelectToken("access_token");
+                }
+                catch (System.Net.WebException ex)
+                {
+                    // TODO: Maybe raise and handle error for incorrect credentials?
+                    System.Diagnostics.Debug.WriteLine("WebRequest Error: " + ex.Message);
+
+                }
             }
-            catch (System.Net.WebException ex)
-            {
-                // TODO: Maybe raise and handle error for incorrect credentials?
-                System.Diagnostics.Debug.WriteLine("WebRequest Error: " + ex.Message);
-                System.Diagnostics.Debug.WriteLine("The application was unable to recieve Twitter authorization token - check credentials in Web.config!");
-                return null;
-            }
+
+            return null;
         }
 
         /// <summary>
         /// Handles YouTube requests with the specified requestUri, returning a JsonObject or JsonArray.
         /// </summary>
         /// <param name="requestUri">The request Uri with query parameters.</param>
-        private JToken GetJsonRequestResults(string requestUri)
+        private static JToken GetJsonRequestResults(string requestUri)
         {
             // Check for cached authorization token or retrieve and save.
             var authorizationToken = cache.GetOrSet("TwitterAuthorizationToken", GetTwitterAuthorizationToken, new TimeSpan(60, 0, 0, 0), true);
+            if (authorizationToken == null)
+            {
+                // Throw credentials error if Twitter did not grant authorization.
+                throw new AuthorizationException("The application was unable to recieve Twitter authorization token - check credentials configuration!");
+            }
 
             var requestHandler = new WebClient();
             requestHandler.BaseAddress = "https://api.twitter.com/1.1/";

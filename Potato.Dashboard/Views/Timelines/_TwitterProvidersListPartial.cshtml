@@ -2,7 +2,7 @@
 @using SocialAlliance.Models.WebConfig;
 @using SocialAlliance.Models;
 
-<table>
+<table id="twitterProvidersList">
     <thead>
         <tr>
             <th>
@@ -49,16 +49,15 @@
                     @Html.DisplayFor(modelItem => item.IncludeHowLongSincePublished)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", item, new { @class = "btn btn-default" })
-                    @using (Html.BeginForm("DeleteProvider", "Timelines", new { timelineId = Model.Id, user = item.User, accountType = AccountType.twitter }, FormMethod.Post))
-                    {
-                        @Html.AntiForgeryToken()
-                        <input type="submit" value="Delete" class="btn btn-default" />
-                    }
-                    @Html.ActionLink("Test", "Test", item, new { @class = "btn btn-default" })
+                    @Ajax.ActionLink("Test", "Test", new { user = item.User, accountType = AccountType.twitter }, 
+                        new AjaxOptions {HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "messageText"}, new { @class = "btn btn-default" })
+                    @Ajax.ActionLink("Delete", "DeleteProvider", new { timelineId = Model.Id, user = item.User, accountType = AccountType.twitter },
+                        new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "twitterProvidersList" }, new { @class = "btn btn-default" })
                 </td>
             </tr>
         }
+
+        @*--------------------------------------------------------- ADD-NEW ROW ---------------------------------------------------------*@
 
         @Html.Partial("_CreateTwitterProviderPartial", new TwitterProviderConfig() { TimelineId = Model.Id })
 

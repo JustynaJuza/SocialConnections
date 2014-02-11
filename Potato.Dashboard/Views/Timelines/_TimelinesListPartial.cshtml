@@ -1,0 +1,56 @@
+﻿@model IEnumerable<SocialAlliance.Models.WebConfig.TimelineConfig>
+@using SocialAlliance.Models.WebConfig;
+
+<table id="timelinesList">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Id")
+            </th>
+            <th>
+                @Html.DisplayName("Name")
+            </th>
+            <th>
+                @Html.DisplayName("Merged")
+            </th>
+            <th>
+                @Html.DisplayName("Single User")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Merged)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SingleUser)
+                </td>
+                <td>
+                    @Html.ActionLink("Configure", "Configure", new { id = item.Id }, new { @class = "btn btn-default" })
+                    @using (Ajax.BeginForm("Delete", "Timelines", new { timelineId = item.Id }, 
+                        new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "timelinesList", 
+                            Confirm = "Are you sure you want to delete the timeline " + item.Id + " with " + (item.YouTubeProviders.Count + item.TwitterProviders.Count).ToString() + " configured social accounts?" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="submit" value="Delete" class="btn btn-default" />
+                    }
+                </td>
+            </tr>
+        }
+
+        @*--------------------------------------------------------- ADD-NEW ROW ---------------------------------------------------------*@
+
+        @Html.Partial("_CreateTimelinePartial", new TimelineConfig() { Id = Guid.NewGuid().ToString() })
+
+    </tbody>
+</table>

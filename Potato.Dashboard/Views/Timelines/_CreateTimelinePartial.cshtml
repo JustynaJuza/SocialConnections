@@ -1,9 +1,11 @@
 ﻿@model SocialAlliance.Models.WebConfig.TimelineConfig
 
-@using (Html.BeginForm("Add", "Timelines", FormMethod.Post))
+@using (Ajax.BeginForm("Add", "Timelines",
+    new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "timelinesList" }))
 {
+    @Html.ValidationSummary()
     @Html.AntiForgeryToken()
-    
+
     <tr>
         <td>
             @Html.EditorFor(m => m.Id)

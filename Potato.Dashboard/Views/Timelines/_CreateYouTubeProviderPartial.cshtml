@@ -1,9 +1,12 @@
 ﻿@model SocialAlliance.Models.WebConfig.YouTubeProviderConfig
 @using SocialAlliance.Models.YouTube;
 
-@using (Html.BeginForm("AddYouTubeProviderToTimeline", "Timelines", FormMethod.Post))
+@using (Ajax.BeginForm("AddYouTubeProviderToTimeline", "Timelines", 
+    new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "youTubeProvidersList" }))
 {
+    @Html.ValidationSummary()
     @Html.AntiForgeryToken()
+    
     <tr>
         @Html.HiddenFor(m => m.TimelineId)
         <td>
@@ -28,6 +31,7 @@
             @Html.EditorFor(m => m.PlaylistsStartResultsIndex)
         </td>
         <td>
+            @* Prepare selection list for Enum type *@
             @{var videoOrderOptions = new List<SelectListItem>();}
 
             @foreach (var order in Enum.GetNames(typeof(VideoOrder)))
@@ -37,6 +41,7 @@
             @Html.DropDownListFor(m => m.UserVideosOrder, videoOrderOptions)
         </td>
         <td>
+            @* Prepare selection list for Enum type *@
             @{var playlistOrderOptions = new List<SelectListItem>();}
 
             @foreach (var order in Enum.GetNames(typeof(PlaylistOrder)))

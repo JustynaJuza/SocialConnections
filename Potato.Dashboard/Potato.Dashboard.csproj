@@ -15,7 +15,7 @@
     <AssemblyName>Potato.Dashboard</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -170,6 +170,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CredentialsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\NotifyMeController.cs" />
     <Compile Include="Controllers\TimelinesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -192,6 +193,8 @@
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -215,7 +218,6 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Timeline.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\SplitSocialDashboard.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Account\_ChangePasswordPartial.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
@@ -227,16 +229,15 @@
     <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="Views\YouTube\Index.cshtml" />
     <Content Include="Views\Home\_YouTubeVideoListPartial.cshtml" />
     <Content Include="Views\Shared\_MessagePartial.cshtml" />
     <Content Include="Views\Home\_TwitterTweetListPartial.cshtml" />
-    <Content Include="Views\Twitter\Index.cshtml" />
     <Content Include="Views\Home\_YouTubeChannelPartial.cshtml" />
     <Content Include="Views\Home\_TwitterUserPartial.cshtml" />
     <Content Include="Views\Timelines\Configure.cshtml" />
     <Content Include="Views\Timelines\_CreateTwitterProviderPartial.cshtml" />
     <Content Include="Views\Home\_YouTubePlaylistPartial.cshtml" />
+    <Content Include="Views\Home\HoldingPage.cshtml" />
     <Content Include="SocialAlliance.Timelines.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -251,8 +252,11 @@
     <Content Include="Views\Credentials\Index.cshtml" />
     <Content Include="Views\Credentials\_AddCredentialsPartial.cshtml" />
     <Content Include="Views\Timelines\_CreateTimelinePartial.cshtml" />
-    <Content Include="Views\Timelines\_YouTubeProviderListPartial.cshtml" />
-    <Content Include="Views\Timelines\_TwitterProviderListPartial.cshtml" />
+    <Content Include="Views\Timelines\_YouTubeProvidersListPartial.cshtml" />
+    <Content Include="Views\Timelines\_TwitterProvidersListPartial.cshtml" />
+    <Content Include="Views\Timelines\_TimelineDetailsPartial.cshtml" />
+    <Content Include="Views\Timelines\_TimelinesListPartial.cshtml" />
+    <Content Include="Views\Credentials\_CredentialsListPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -288,9 +292,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>53804</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:53804/</IISUrl>
-          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
-          <IISAppRootUrl>http://localhost:53804/Potato.Dashboard</IISAppRootUrl>
+          <IISUrl>http://localhost/Potato</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

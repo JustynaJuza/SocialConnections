@@ -114,7 +114,7 @@ C:\Users\justyna\Desktop\Potato Backup Separate\Potato.Dashboard\bin\Microsoft.O
 C:\Users\justyna\Desktop\Potato Backup Separate\Potato.Dashboard\obj\Debug\Potato.Dashboard.csprojResolveAssemblyReference.cache
 C:\Users\justyna\Desktop\Potato Backup Separate\Potato.Dashboard\obj\Debug\Potato.Dashboard.dll
 C:\Users\justyna\Desktop\Potato Backup Separate\Potato.Dashboard\obj\Debug\Potato.Dashboard.pdb
-C:\Projects\Potato\Potato.Dashboard\bin\SocialDashboard.dll
-C:\Projects\Potato\Potato.Dashboard\bin\SocialDashboard.pdb
 C:\Projects\Potato\Potato.Dashboard\bin\SocialAlliance.Timelines.config
 C:\Projects\Potato\Potato.Dashboard\bin\SocialAlliance.Authorization.config
+C:\Projects\Potato\Potato.Dashboard\bin\SocialAlliance.dll
+C:\Projects\Potato\Potato.Dashboard\bin\SocialAlliance.pdb

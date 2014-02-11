@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SocialAlliance.Models
 {
     /// <summary>
-    /// Common interface for entries including tweets and videos, allows for sorting by publish date.
+    /// The common interface for entries including tweets and videos, allows for sorting by publish date.
     /// </summary>
     public interface ISocialEntry {
         DateTime Published { get; set; }
@@ -29,7 +29,7 @@ namespace SocialAlliance.Models
             {
                 return -1;
             }
-            else if (dateX > dateY)
+            else if (dateX < dateY)
             {
                 return 1;
             }

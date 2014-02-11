@@ -13,42 +13,36 @@ namespace Potato.Dashboard.Controllers
         public ActionResult Index()
         {
             var config = SocialAllianceConfig.Read();
-            return View(config.Authorization.Credentials);
+            var credentials = config.Authorization.Credentials;
+
+            return View(credentials);
         }
 
+        #region AJAX ACTIONS
         [HttpPost]
         public ActionResult Add(CredentialsConfig credentialsConfig)
         {
-            SocialAllianceConfig.CreateOrUpdateCredentials(credentialsConfig);
-            return RedirectToAction("Index");
-        }
-
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
-        {
-            try
+            if (ModelState.IsValid)
             {
-                // TODO: Add update logic here
+                SocialAllianceConfig.CreateOrUpdateCredentials(credentialsConfig);
+            }
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            var config = SocialAllianceConfig.Read();
+            var credentials = config.Authorization.Credentials;
+
+            return PartialView("_CredentialsListPartial", credentials);
         }
 
         [HttpPost]
         public ActionResult Delete(AccountType accountType)
         {
             SocialAllianceConfig.DeleteCredentials(accountType);
-            
-            return RedirectToAction("Index");
+
+            var config = SocialAllianceConfig.Read();
+            var credentials = config.Authorization.Credentials;
+
+            return PartialView("_CredentialsListPartial", credentials);
         }
+        #endregion AJAX ACTIONS
     }
 }

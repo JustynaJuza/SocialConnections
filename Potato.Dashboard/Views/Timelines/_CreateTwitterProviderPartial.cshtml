@@ -1,8 +1,11 @@
 ﻿@model SocialAlliance.Models.WebConfig.TwitterProviderConfig
 
-@using (Html.BeginForm("AddTwitterProviderToTimeline", "Timelines", FormMethod.Post))
+@using (Ajax.BeginForm("AddTwitterProviderToTimeline", "Timelines", 
+    new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "twitterProvidersList" }))
 {
+    @Html.ValidationSummary()
     @Html.AntiForgeryToken()
+    
     <tr>
         @Html.HiddenFor(m => m.TimelineId)
         <td>

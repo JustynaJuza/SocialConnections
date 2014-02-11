@@ -1,0 +1,26 @@
+﻿@model SocialAlliance.Models.WebConfig.TimelineConfig
+@using SocialAlliance.Models.WebConfig;
+@using SocialAlliance.Models;
+
+@using (Ajax.BeginForm("Update", "Timelines",
+                new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "timelineDetails" }))
+{
+    <table id="timelineDetails">
+        <tr>
+            @Html.HiddenFor(m => m.Id)
+            <td>
+                Name: @Html.EditorFor(m => m.Name)
+            </td>
+            <td>
+                Merge all activity: @Html.EditorFor(m => m.Merged)
+            </td>
+            <td>
+                Single user (includes user channel / timeline statistics): @Html.EditorFor(m => m.SingleUser)
+            </td>
+            <td>
+                @Html.AntiForgeryToken()
+                <input type="submit" value="Update" class="btn btn-default" />
+            </td>
+        </tr>
+    </table>
+}

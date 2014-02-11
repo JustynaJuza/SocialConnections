@@ -13,7 +13,7 @@ namespace SocialAlliance.Models.WebConfig
     /// <summary>
     /// The component's main configuration handler for the &lt;socialAlliance.config&gt section in Web.config,
     /// <para>needs to be referenced in main project's Web.config &lt;configSections&gt; along with all child sections.
-    /// <para>&lt;sectionGroup name="socialAlliance.config" type="SocialAlliance.Models.WebConfig, SocialDashboard" /&gt;</para>
+    /// <para>&lt;sectionGroup name="socialAlliance.config" type="SocialAlliance.Models.WebConfig, SocialAlliance" /&gt;</para>
     /// </summary>
     public class SocialAllianceConfig : ConfigurationSectionGroup
     {
@@ -30,6 +30,9 @@ namespace SocialAlliance.Models.WebConfig
         }
 
         #region CRUD
+        /// <summary>
+        /// Reads the whole component configuration form Web.config.
+        /// </summary>
         public static SocialAllianceConfig Read()
         {
             // Reads from configuration if using a desktop Application (.exe).
@@ -39,14 +42,22 @@ namespace SocialAlliance.Models.WebConfig
             var currentConfig = (SocialAllianceConfig) webConfig.GetSectionGroup("socialAlliance.config");
             return currentConfig;
         }
-
+        /// <summary>
+        /// Reads the credential entries from a retrieved configuration.
+        /// </summary>
+        /// <param name="accountType">The account for which credentials are requested.</param>
         public CredentialsConfig ReadCredentials(AccountType accountType)
         {
             //var authorizationProperty = typeof(AuthorizationConfig).GetProperty(accountType.ToString(), BindingFlags.IgnoreCase);
             //return (CredentialsConfig) authorizationProperty.GetValue(Authorization);
             return (CredentialsConfig) Authorization.Credentials.FirstOrDefault(c => c.AccountType == accountType);
         }
-
+        /// <summary>
+        /// Reads the timeline entry from a retrieved configuration.
+        /// </summary>
+        /// <param name="timelineNameOrId">The id or name of the requested timeline.</param>
+        /// <param name="isId">Defines if provided timeline identifier is id or name.</param>
+        /// <returns></returns>
         public TimelineConfig ReadTimeline(string timelineNameOrId, bool isId = false)
         {
             if (isId)
@@ -55,7 +66,10 @@ namespace SocialAlliance.Models.WebConfig
             }
             return (TimelineConfig) SocialTimelines.Timelines.FirstOrDefault(t => t.Name == timelineNameOrId);
         }
-
+        /// <summary>
+        /// Adds or updates credential entries in Web.config.
+        /// </summary>
+        /// <param name="credentialsConfig">The new credential configuration.</param>
         public static void CreateOrUpdateCredentials(CredentialsConfig credentialsConfig)
         {
             var webConfig = WebConfigurationManager.OpenWebConfiguration(HttpContext.Current.Request.ApplicationPath);
@@ -65,7 +79,10 @@ namespace SocialAlliance.Models.WebConfig
             currentConfig.Authorization.Credentials.Add(credentialsConfig);
             webConfig.Save(ConfigurationSaveMode.Modified);
         }
-
+        /// <summary>
+        /// Adds or updates timeline entries in Web.config.
+        /// </summary>
+        /// <param name="timelineConfig">The new timeline configuration.</param>
         public static void CreateOrUpdateTimeline(TimelineConfig timelineConfig)
         {
             var webConfig = WebConfigurationManager.OpenWebConfiguration(HttpContext.Current.Request.ApplicationPath);
@@ -76,7 +93,10 @@ namespace SocialAlliance.Models.WebConfig
             currentConfig.SocialTimelines.Timelines.Add(timelineConfig);
             webConfig.Save(ConfigurationSaveMode.Modified);
         }
-
+        /// <summary>
+        /// Deletes credential entries in Web.config.
+        /// </summary>
+        /// <param name="accountType">The type of social account which credentials should be deleted.</param>
         public static void DeleteCredentials(AccountType accountType)
         {
             var webConfig = WebConfigurationManager.OpenWebConfiguration(HttpContext.Current.Request.ApplicationPath);
@@ -85,7 +105,10 @@ namespace SocialAlliance.Models.WebConfig
             currentConfig.Authorization.Credentials.Remove(accountType);
             webConfig.Save(ConfigurationSaveMode.Modified);
         }
-
+        /// <summary>
+        /// Deletes timeline entries in Web.config.
+        /// </summary>
+        /// <param name="timelineId">The id of the timeline to be deleted.</param>
         public static void DeleteTimeline(string timelineId)
         {
             var webConfig = WebConfigurationManager.OpenWebConfiguration(HttpContext.Current.Request.ApplicationPath);
@@ -152,13 +175,15 @@ namespace SocialAlliance.Models.WebConfig
             get { return (AccountType) this["accountType"]; }
             set { this["accountType"] = value; }
         }
-        [ConfigurationProperty("consumerKey", IsRequired = true)]
+        [Required(ErrorMessage = "You must enter the application-ID aquired form registering the application with the social account provider.")]
+        [ConfigurationProperty("consumerKey", IsRequired = true, DefaultValue = "")]
         public string ConsumerKey
         {
             get { return (string) this["consumerKey"]; }
             set { this["consumerKey"] = value; }
         }
-        [ConfigurationProperty("consumerSecret", IsRequired = true)]
+        [Required(ErrorMessage = "You must enter the application-password aquired form registering the application with the social account provider.")]
+        [ConfigurationProperty("consumerSecret", IsRequired = true, DefaultValue = "")]
         public string ConsumerSecret
         {
             get { return (string) this["consumerSecret"]; }
@@ -171,16 +196,18 @@ namespace SocialAlliance.Models.WebConfig
     /// </summary>
     public class TimelineConfig : ConfigurationElement
     {
-        [StringValidator(MinLength=1, MaxLength=36)]
-        [StringLength(36, ErrorMessage = "Please make sure the {0} has a value of {1}-{2} characters.", MinimumLength = 1)]
-        [ConfigurationProperty("id", IsRequired = true, DefaultValue = " ")]
+        /// <summary>
+        /// An identifier value for the timeline.</summary>
+        [Required(ErrorMessage = "The timeline must have an identifier.")]
+        [StringLength(36, ErrorMessage = "Please make sure the ID has a length of less than {1} characters.")]
+        [ConfigurationProperty("id", IsRequired = true, DefaultValue = "")]
         public string Id
         {
             get { return (string) this["id"]; }
             set { this["id"] = value; }
         }
-
-        [StringValidator(MinLength = 0, MaxLength = 36)]
+        /// <summary>
+        /// A name for the timeline for management purposes.</summary>
         [StringLength(36, ErrorMessage = "Please make sure the {0} has a value of less than {1} characters.")]
         [ConfigurationProperty("name", DefaultValue = "")]
         public string Name
@@ -188,14 +215,16 @@ namespace SocialAlliance.Models.WebConfig
             get { return (string) this["name"]; }
             set { this["name"] = value; }
         }
-
+        /// <summary>
+        /// Use a single timeline for activity retrieved from all social accounts.</summary>
         [ConfigurationProperty("merged", IsRequired = true, DefaultValue = true)]
         public bool Merged
         {
             get { return (bool) this["merged"]; }
             set { this["merged"] = value; }
         }
-
+        /// <summary>
+        /// Include user's social account information and statistics in timeline.</summary>
         [ConfigurationProperty("singleUser", IsRequired = true, DefaultValue = false)]
         public bool SingleUser
         {
@@ -220,14 +249,15 @@ namespace SocialAlliance.Models.WebConfig
         }
     }
 
-    public class YouTubeProviderConfig : ConfigurationElement, ISocialProviderConfig
+    /// <summary>
+    /// A single YouTube user configuration entry with request parameters.</summary>
+    public class YouTubeProviderConfig : ConfigurationElement
     {
         public string TimelineId { get; set; }
         /// <summary>
         /// YouTube user whose videos we request.</summary>
-        [StringValidator(MinLength = 1, MaxLength = 36)]
-        [StringLength(36, ErrorMessage = "Please make sure the channel/user name has a value of {1}-{2} characters.", MinimumLength = 1)]
-        [ConfigurationProperty("user", IsRequired = true, IsKey = true, DefaultValue = " ")]
+        [Required(ErrorMessage = "The user's YouTube channel name is required.")]
+        [ConfigurationProperty("user", IsRequired = true, IsKey = true, DefaultValue = "")]
         public string User
         {
             get { return (string) this["user"]; }
@@ -243,8 +273,7 @@ namespace SocialAlliance.Models.WebConfig
         }
         /// <summary>
         /// How many results should be feteched for user/playlistId videos.</summary>
-        [IntegerValidator(MinValue=0, MaxValue=50)]
-        [Range(0, 50, ErrorMessage = "YouTube can only handle requests for up to 50 results.")]
+        [Range(0, 50, ErrorMessage = "YouTube can only handle requests for up to 50 video results.")]
         [ConfigurationProperty("videoResults", DefaultValue = 10)]
         public int VideoResultsCount
         {
@@ -253,8 +282,7 @@ namespace SocialAlliance.Models.WebConfig
         }
         /// <summary>
         /// How many results should be feteched for playlists.</summary>
-        [IntegerValidator(MinValue = 0, MaxValue = 50)]
-        [Range(0, 50, ErrorMessage = "YouTube can only handle requests for up to 50 results.")]
+        [Range(0, 50, ErrorMessage = "YouTube can only handle requests for up to 50 playlist results.")]
         [ConfigurationProperty("playlistResults", DefaultValue = 0)]
         public int PlaylistResultsCount
         {
@@ -271,7 +299,6 @@ namespace SocialAlliance.Models.WebConfig
         }
         /// <summary>
         /// Index of the first video to be fetched (starting with 1).</summary>
-        [IntegerValidator(MinValue = 1)]
         [Range(1, int.MaxValue, ErrorMessage = "The search index must start from at least 1.")]
         [ConfigurationProperty("videosStartIndex", DefaultValue = 1)]
         public int VideosStartResultsIndex
@@ -281,7 +308,6 @@ namespace SocialAlliance.Models.WebConfig
         }
         /// <summary>
         /// Index of the first playlist to be fetched (starting with 1).</summary>
-        [IntegerValidator(MinValue = 1)]
         [Range(1, int.MaxValue, ErrorMessage = "The search index must start from at least 1.")]
         [ConfigurationProperty("playlistsStartIndex", DefaultValue = 1)]
         public int PlaylistsStartResultsIndex
@@ -317,14 +343,15 @@ namespace SocialAlliance.Models.WebConfig
         }
     }
 
-    public class TwitterProviderConfig : ConfigurationElement, ISocialProviderConfig
+    /// <summary>
+    /// A single Twitter user configuration entry with request parameters.</summary>
+    public class TwitterProviderConfig : ConfigurationElement
     {
         public string TimelineId { get; set; }
         /// <summary>
         /// Twitter user whose timeline we request.</summary>
-        [StringValidator(MinLength = 1, MaxLength = 36)]
-        [StringLength(36, ErrorMessage = "Please make sure the user's screen-name has a value of {1}-{2} characters.", MinimumLength = 1)]
-        [ConfigurationProperty("user", IsRequired = true, IsKey = true, DefaultValue = " ")]
+        [Required(ErrorMessage = "The user's Twitter screen name is required.")]
+        [ConfigurationProperty("user", IsRequired = true, IsKey = true, DefaultValue = "")]
         public string User
         {
             get { return (string) this["user"]; }
@@ -333,8 +360,7 @@ namespace SocialAlliance.Models.WebConfig
         /// <summary>
         /// How many tweets should be feteched from timeline.
         /// <para>Important: When filtering out replies and retweets you get less than the count, because filtering is applied after fetching the specific count.</para></summary>
-        [IntegerValidator(MinValue = 0, MaxValue = 200)]
-        [Range(0, 200, ErrorMessage = "Twitter can only handle requests for up to 200 results.")]
+        [Range(0, 200, ErrorMessage = "Twitter can only handle requests for up to 200 tweet results.")]
         [ConfigurationProperty("timelineResults", DefaultValue = 50)]
         public int TimelineResultsCount
         {
@@ -366,14 +392,6 @@ namespace SocialAlliance.Models.WebConfig
         {
             get { return (bool) this["includeRetweets"]; }
             set { this["includeRetweets"] = value; }
-        }
-        /// <summary>
-        /// Trim user details in tweet, leaving only id.</summary>
-        [ConfigurationProperty("includeUserDetailsInTweet", DefaultValue = false)]
-        public bool IncludeUserDetailsInTweet
-        {
-            get { return (bool) this["includeUserDetailsInTweet"]; }
-            set { this["includeUserDetailsInTweet"] = value; }
         }
         /// <summary>
         /// Include a word description of when the tweet was published.</summary>
@@ -531,7 +549,4 @@ namespace SocialAlliance.Models.WebConfig
         }
     }
     #endregion CONFIG COLLECTIONS
-
-    
-  // [RegularExpression(@"^.{11}$ | ^$", ErrorMessage = "YouTube Id's are exactly {2} characters long, update the {0}.")]
 }

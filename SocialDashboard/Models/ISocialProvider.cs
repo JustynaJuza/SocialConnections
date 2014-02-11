@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace SocialAlliance.Models
 {
+    /// <summary>
+    /// An enum type representing available social account associations.
+    /// </summary>
     public enum AccountType
     {
         youTube,
@@ -13,13 +16,11 @@ namespace SocialAlliance.Models
         facebook
     }
 
+    /// <summary>
+    /// The common interface for social account API providers, allows publish time description consistentcy in merged timelines.
+    /// </summary>
     public interface ISocialProvider
     {
         bool IncludeHowLongSincePublished { get; set; }
-    }
-
-    public interface ISocialProviderConfig
-    {
-        string TimelineId { get; set; }
     }
 }

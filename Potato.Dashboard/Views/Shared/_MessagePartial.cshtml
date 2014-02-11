@@ -1,4 +1,5 @@
-﻿@if (TempData["Error"] != null)
+﻿<div id="messageText">
+@if (TempData["Error"] != null)
 {
     <p><span class="text-danger">PROBLEMS DETECTED!</span> @TempData["Error"] </p>
 }
@@ -7,3 +8,4 @@
 {
     <p class="text-success">@TempData["Message"]</p>
 }
+</div>

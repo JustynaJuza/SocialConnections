@@ -27,12 +27,19 @@ namespace Potato.Dashboard.Controllers
             return View(timelineConfig);
         }
 
+        #region AJAX ACTIONS
         [HttpPost]
         public ActionResult Add(TimelineConfig timelineConfig)
         {
-            SocialAllianceConfig.CreateOrUpdateTimeline(timelineConfig);
+            if (ModelState.IsValid)
+            {
+                SocialAllianceConfig.CreateOrUpdateTimeline(timelineConfig);
+            }
 
-            return RedirectToAction("Index");
+            var config = SocialAllianceConfig.Read();
+            var socialTimelines = config.SocialTimelines.Timelines;
+
+            return PartialView("_TimelinesListPartial", socialTimelines);
         }
 
         [HttpPost]
@@ -40,10 +47,14 @@ namespace Potato.Dashboard.Controllers
         {
             var config = SocialAllianceConfig.Read();
             var timelineConfig = config.ReadTimeline(providerConfig.TimelineId, true);
-            timelineConfig.TwitterProviders.Add(providerConfig);
-            SocialAllianceConfig.CreateOrUpdateTimeline(timelineConfig);
 
-            return View("Configure", timelineConfig);
+            if (ModelState.IsValid)
+            {
+                timelineConfig.TwitterProviders.Add(providerConfig);
+                SocialAllianceConfig.CreateOrUpdateTimeline(timelineConfig);
+            }
+
+            return PartialView("_TwitterProvidersListPartial", timelineConfig);
         }
 
         [HttpPost]
@@ -51,10 +62,14 @@ namespace Potato.Dashboard.Controllers
         {
             var config = SocialAllianceConfig.Read();
             var timelineConfig = config.ReadTimeline(providerConfig.TimelineId, true);
-            timelineConfig.YouTubeProviders.Add(providerConfig);
-            SocialAllianceConfig.CreateOrUpdateTimeline(timelineConfig);
 
-            return View("Configure", timelineConfig);
+            if (ModelState.IsValid)
+            {
+                timelineConfig.YouTubeProviders.Add(providerConfig);
+                SocialAllianceConfig.CreateOrUpdateTimeline(timelineConfig);
+            }
+
+            return PartialView("_YouTubeProvidersListPartial", timelineConfig);
         }
 
         [HttpPost]
@@ -67,35 +82,39 @@ namespace Potato.Dashboard.Controllers
             timelineConfig.SingleUser = newTimelineConfig.SingleUser;
             SocialAllianceConfig.CreateOrUpdateTimeline(timelineConfig);
 
-            return View("Configure", timelineConfig);
-        }
-
-        public ActionResult Edit(int id)
-        {
-            return View();
+            return PartialView("_TimelineDetailsPartial", timelineConfig);
         }
 
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Test(string user, AccountType accountType)
         {
-            try
+            if (accountType == AccountType.youTube)
             {
-                // TODO: Add update logic here
+                TempData["Error"] = YouTubeProvider.TestUserRequest(user);
+                TempData["Message"] = "Succesful request for YouTube user " + user + ".";
+            }
+            else
+            {
+                TempData["Error"] = TwitterProvider.TestUserRequest(user);
+                TempData["Message"] = "Succesful request for Twitter user " + user + ".";
+            }
 
-                return RedirectToAction("Index");
-            }
-            catch
+            if (TempData["Error"] != null)
             {
-                return View();
+                TempData["Message"] = null;
             }
+
+            return PartialView("_MessagePartial");
         }
 
         [HttpPost]
         public ActionResult Delete(string timelineId)
         {
-            SocialAllianceConfig.CreateOrUpdateTimeline(new TimelineConfig());
+            SocialAllianceConfig.DeleteTimeline(timelineId);
+            var config = SocialAllianceConfig.Read();
+            var socialTimelines = config.SocialTimelines.Timelines;
 
-            return RedirectToAction("Index");
+            return PartialView("_TimelinesListPartial", socialTimelines);
         }
 
         [HttpPost]
@@ -121,7 +140,8 @@ namespace Potato.Dashboard.Controllers
                 TempData["Error"] = "There was an error deleting the entry, maybe it has already been deleted.";
             }
 
-            return View("Configure", timelineConfig);
+            return PartialView("_" + accountType.ToString() + "ProvidersListPartial", timelineConfig);
         }
+        #endregion AJAX ACTIONS
     }
 }

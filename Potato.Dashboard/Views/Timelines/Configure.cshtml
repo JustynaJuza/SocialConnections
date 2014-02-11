@@ -1,6 +1,4 @@
 ﻿@model SocialAlliance.Models.WebConfig.TimelineConfig
-@using SocialAlliance.Models.WebConfig;
-@using SocialAlliance.Models;
 
 @{
     ViewBag.Title = "Configure Twitter Providers Timeline";
@@ -9,34 +7,18 @@
 
 <h2>Timeline (ID: @Model.Id)</h2>
 
+@Html.Partial("_MessagePartial")
+
 @Html.ValidationSummary(true)
 
-@using (Html.BeginForm("Update", "Timelines", FormMethod.Post))
-{
-    @Html.AntiForgeryToken()
-
-    <table>
-        <tr>
-            @Html.HiddenFor(m => m.Id)
-            <td>
-                Name: @Html.EditorFor(m => m.Name)
-            </td>
-            <td>
-                Merge all activity: @Html.EditorFor(m => m.Merged)
-            </td>
-            <td>
-                Single user (includes user channel / timeline statistics): @Html.EditorFor(m => m.SingleUser)
-            </td>
-            <td>
-                <input type="submit" value="Update" class="btn btn-default" />
-            </td>
-
-        </tr>
-    </table>
-}
+@Html.Partial("_TimelineDetailsPartial", Model)
 
 <hr />
 
-@Html.Partial("_YouTubeProviderListPartial", Model)
+@Html.Partial("_YouTubeProvidersListPartial", Model)
 
-@Html.Partial("_TwitterProviderListPartial", Model)
+@Html.Partial("_TwitterProvidersListPartial", Model)
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jquery-ajax")
+}

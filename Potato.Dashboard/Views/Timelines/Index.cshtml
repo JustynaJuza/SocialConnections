@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<SocialAlliance.Models.WebConfig.TimelineConfig>
-@using SocialAlliance.Models.WebConfig;
 
 @{
     ViewBag.Title = "Index";
@@ -8,51 +7,10 @@
 
 <h2>Timelines Configuration</h2>
 
-@Html.ValidationSummary(true)
+@Html.Partial("_MessagePartial")
 
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayName("Id")
-        </th>
-        <th>
-            @Html.DisplayName("Name")
-        </th>
-        <th>
-            @Html.DisplayName("Merged")
-        </th>
-        <th>
-            @Html.DisplayName("Single User")
-        </th>
-        <th></th>
-    </tr>
+@Html.Partial("_TimelinesListPartial", Model)
 
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Merged)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SingleUser)
-            </td>
-            <td>
-                @Html.ActionLink("Configure", "Configure", new { id = item.Id }, new { @class = "btn btn-default" })
-                @using (Html.BeginForm("Delete", "Timelines", new { accountType = item.Id }, FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-                    <input type="submit" value="Delete" class="btn btn-default" />
-                }
-            </td>
-        </tr>
-    }
-
-    @Html.Partial("_CreateTimelinePartial", new TimelineConfig() { Id = Guid.NewGuid().ToString() })
-
-</table>
+@section Scripts{
+    @Scripts.Render("~/bundles/jquery-ajax")
+}

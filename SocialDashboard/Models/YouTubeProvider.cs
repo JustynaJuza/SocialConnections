@@ -117,7 +117,21 @@ namespace SocialAlliance.Models
         #endregion CONSTRUCTORS
 
         /// <summary>
-        /// Returns YouTube channel information and user's uploaded videos based on instance settings.
+        /// Performs a sample request to the user's YouTube account, testing the connection.
+        /// </summary>
+        public static string TestUserRequest(string user)
+        {
+            var requestUri = "users/" + user + "?alt=json";
+            if (GetJsonRequestResults(requestUri) == null)
+            {
+                return "No user with the name " + user + " exists on YouTube.";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns YouTube channel information and user's uploaded videos according to configuration.
         /// <para>Also includes additional playlist results if specified by instance settings.</para>
         /// </summary>
         /// <param name="errorText">Error text if request failed, with purpose for a TempData["Error"] to be assigned.</param>
@@ -159,11 +173,30 @@ namespace SocialAlliance.Models
             return userChannel;
         }
 
-        public Channel GetChannel()
+        /// <summary>
+        /// Returns the user's channel information according to configuration.
+        /// </summary>
+        /// <param name="errorText">The error information passed if no user is found with the configured name.</param>
+        public Channel GetChannel(out string errorText)
         {
-            return GetChannel(User);
+            errorText = null;
+
+            var userChannel = GetChannel(User);
+            // Set error only if user not found on YouTube.
+            if (userChannel == null)
+            {
+                errorText = "No user with the name " + User + " exists on YouTube.";
+                return null;
+            }
+
+            return userChannel;
         }
 
+        /// <summary>
+        /// Returns a list of user's playlists according to configuration.
+        /// </summary>
+        /// <param name="withVideos">Include videos in requested playlists.</param>
+        /// <param name="playlistTitle">The title of a specifically requested playlist.</param>
         public IList<Playlist> GetChannelPlaylists(bool withVideos, string playlistTitle = "")
         {
             return GetChannelPlaylists(User, playlistTitle, IncludeHowLongSincePublished,
@@ -171,6 +204,9 @@ namespace SocialAlliance.Models
                 withVideos, VideoResultsCount, PlaylistVideosOrder);
         }
 
+        /// <summary>
+        /// Returns a list of user's uploaded videos according to configuration.
+        /// </summary>
         public IList<Video> GetChannelVideos()
         {
             return GetChannelVideos(User, IncludeHowLongSincePublished,
@@ -325,7 +361,7 @@ namespace SocialAlliance.Models
         /// Handles YouTube requests with the specified requestUri, returning a JsonObject.
         /// </summary>
         /// <param name="requestUri">The request Uri with query parameters.</param>
-        private JToken GetJsonRequestResults(string requestUri)
+        private static JToken GetJsonRequestResults(string requestUri)
         {
             var requestHandler = new WebClient();
             requestHandler.BaseAddress = "http://gdata.youtube.com/feeds/api/";
